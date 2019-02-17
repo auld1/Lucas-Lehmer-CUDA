@@ -1,0 +1,11 @@
+This repo (when completed) will be the entire set of files needed to run the Lucas-Lehmer algorithm for verifying Mersenne primes on an Nvidia GPU using CUDA.  The implementation is part of a project to demonstrate speedup of the Lucas-Lehmer algorithm using GPGPU programming and various approaches to parallelization.
+
+These approaches include:
+  - Running a separate instance of the Lucas-Lehmer algorithm on each GPU core
+  - Parallelizing the Lucas-Lehmer algorithm with one instance across the GPU cores, using Big Integer arithmetic
+  - Implementing various Big Integer arithmetic algorithms:
+    - Naive Multiplication              [runs in O(n^2)]
+    - Karatsuba Multiplication          [runs in O(n^log2(3)) ~= O(n^1.585)]
+    - Toom-Cook Multiplication          [runs in O(n^(log(5)/log(3))) ~= O(n^1.465) for Toom-3]
+    - Schonhage-Strassen Multiplication [runs in O(nlog(n)log(log(n)))]
+  - Determining which Big Ingteger algorithms can be parallelized at which levels, and which size cutoffs to use for each algorithm
