@@ -5,6 +5,7 @@
 #include "memory.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 __device__ unsigned int
 cuda_multiply_gradeschool_digit(const unsigned int* __restrict__ a,
@@ -21,7 +22,7 @@ cuda_multiply_gradeschool_digit(const unsigned int* __restrict__ a,
     int b_i = 0;
 
     result = carry_in;
-    for (b_i = max(0, digit - N); b_i <= min(digit, N); b_i++)
+    for (b_i = max(0, digit - N/2 + 1); b_i <= min(digit, N/2 - 1); b_i++)
     {
         a_i = digit - b_i;
         temp = a[a_i] * b[b_i];
@@ -57,7 +58,8 @@ multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     bool should_carry_host;
     cudaError_t err;
     
-    assert(a.word_len * b.word_len == c.word_len);
+    assert(a.word_len == b.word_len);
+    assert(a.word_len + b.word_len == c.word_len);
     
     cuda_malloc_clear((void**) &long_carry, c.word_len * sizeof(*long_carry));
     cuda_malloc_clear((void**) &byte_carry1, c.word_len * sizeof(*byte_carry1));
@@ -67,7 +69,7 @@ multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
      
-    cuda_multiply_gradeschool<<<64, c.word_len/64>>>(a.val, b.val, c.val, long_carry, a.word_len);
+    cuda_multiply_gradeschool<<<64, c.word_len/64>>>(a.val, b.val, c.val, long_carry, c.word_len);
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
     
@@ -96,4 +98,61 @@ multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
         byte_carry2 = temp;
     }
     c.sign = a.sign*b.sign;
+}
+
+int
+main()
+{
+    CudaBigInt a;
+    CudaBigInt b;
+    CudaBigInt c(4096);
+    
+    unsigned int a_host[a.word_len];
+    unsigned int b_host[b.word_len];
+    unsigned int c_host[c.word_len];
+    
+    
+    int i = 0;
+    
+    for(i = 0; i < c.word_len; i++)
+    {
+        c_host[i] = 0;
+    }
+    
+    for(i = 0; i < a.word_len; i++)
+    {
+        a_host[i] = 0;
+        b_host[i] = 0;
+    }
+    
+    for(i = 0; i < a.word_len; i++)
+    {
+        a_host[i] = 0xffffffff;
+        b_host[i] = 0xffffffff;
+    }
+    
+    
+    for(i = 0; i < c.word_len; i++)
+    {
+        c_host[i] = 0;
+    }
+    
+    
+    cudaMemcpy(a.val, a_host, a.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    cudaMemcpy(b.val, b_host, b.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    cudaMemcpy(c.val, c_host, c.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    
+    multiply(a, b, c);
+    
+    
+    cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+    
+    
+    for(i = 0; i < c.word_len; i++)
+    {
+        printf("%x\n", c_host[i]);
+    }
+    
+
+    return 0;
 }

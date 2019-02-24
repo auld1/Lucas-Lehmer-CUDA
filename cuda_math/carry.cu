@@ -26,7 +26,7 @@ void cuda_long_carry(unsigned int* __restrict__ c,
     {
         unsigned int temp = (carry_in[c_i - 2] >> 32) & 0xffffffff;
         c[c_i] += temp;
-        if (c.val[c_i] < temp)
+        if (c[c_i] < temp)
         {
             carry_out[c_i]++;
             *needs_carry = true;

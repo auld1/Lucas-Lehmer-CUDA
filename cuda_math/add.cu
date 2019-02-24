@@ -5,6 +5,7 @@
 #include "memory.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 __device__
 unsigned int cuda_add_digit(const unsigned int* __restrict__ a,
@@ -54,6 +55,8 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     bool should_carry_host;
     cudaError_t err;
     
+    assert(a.word_len == b.word_len);
+    assert(a.word_len + 1 <= c.word_len);
     
     if (a.sign == -1)
     {
@@ -78,7 +81,7 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
      
-    cuda_add<<<64, c.word_len/64>>>(a.val, b.val, c.val, byte_carry1, c.word_len);
+    cuda_add<<<64, a.word_len/64>>>(a.val, b.val, c.val, byte_carry1, a.word_len);
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
     
@@ -97,4 +100,61 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
         byte_carry2 = temp;
     } while (should_carry_host);
     
+}
+
+int
+main()
+{
+    CudaBigInt a;
+    CudaBigInt b;
+    CudaBigInt c(4096);
+    
+    unsigned int a_host[a.word_len];
+    unsigned int b_host[b.word_len];
+    unsigned int c_host[c.word_len];
+    
+    
+    int i = 0;
+    
+    for(i = 0; i < c.word_len; i++)
+    {
+        c_host[i] = 0;
+    }
+    
+    for(i = 0; i < a.word_len; i++)
+    {
+        a_host[i] = 0;
+        b_host[i] = 0;
+    }
+    
+    for(i = 0; i < a.word_len; i++)
+    {
+        a_host[i] = 0xffffffff;
+        b_host[i] = 0xffffffff;
+    }
+    
+    
+    for(i = 0; i < c.word_len; i++)
+    {
+        c_host[i] = 0;
+    }
+    
+    
+    cudaMemcpy(a.val, a_host, a.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    cudaMemcpy(b.val, b_host, b.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    cudaMemcpy(c.val, c_host, c.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    
+    add(a, b, c);
+    
+    
+    cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+    
+    
+    for(i = 0; i < c.word_len; i++)
+    {
+        printf("%x\n", c_host[i]);
+    }
+    
+
+    return 0;
 }

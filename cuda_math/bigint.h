@@ -13,7 +13,7 @@ class CudaBigInt
         cudaError_t err;
 
         sign     = 1;                   // Default positive
-        word_len = 1024 / WORD_BIT_LEN; // Default to 1024 bits
+        word_len = 2048 / WORD_BIT_LEN; // Default to 1024 bits
 
         // Malloc to device, check for errors
         err = cudaMalloc(&val, word_len * sizeof(*val));
