@@ -81,13 +81,13 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
      
-    cuda_add<<<64, a.word_len/64>>>(a.val, b.val, c.val, byte_carry1, a.word_len);
+    cuda_add<<<512, a.word_len/512>>>(a.val, b.val, c.val, byte_carry1, a.word_len);
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
     
     do
     {
-        cuda_byte_carry<<<64, c.word_len/64>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
+        cuda_byte_carry<<<512, c.word_len/512>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
     
         err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
         assert(err == cudaSuccess);
@@ -105,9 +105,9 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
 int
 main()
 {
-    CudaBigInt a;
-    CudaBigInt b;
-    CudaBigInt c(4096);
+    CudaBigInt a(1024*1024*8);
+    CudaBigInt b(1024*1024*8);
+    CudaBigInt c(1024*1024*8*2);
     
     unsigned int a_host[a.word_len];
     unsigned int b_host[b.word_len];
@@ -130,8 +130,10 @@ main()
     for(i = 0; i < a.word_len; i++)
     {
         a_host[i] = 0xffffffff;
-        b_host[i] = 0xffffffff;
+        b_host[i] = 0;
     }
+    a_host[0] = 0xffffffff;
+    b_host[0] = 0xffffffff;
     
     
     for(i = 0; i < c.word_len; i++)
@@ -148,12 +150,6 @@ main()
     
     
     cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
-    
-    
-    for(i = 0; i < c.word_len; i++)
-    {
-        printf("%x\n", c_host[i]);
-    }
     
 
     return 0;
