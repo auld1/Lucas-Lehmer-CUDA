@@ -4,6 +4,6 @@
 #include "bigint.h"
 
 void
-multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c);
+multiply(CudaBigInt& a, CudaBigInt& b, CudaBigInt& c);
 
 #endif // MULTIPLY_H

@@ -4,6 +4,6 @@
 #include "bigint.h"
 
 void
-add(CudaBigInt a, CudaBigInt b, CudaBigInt c);
+add(CudaBigInt& a, CudaBigInt& b, CudaBigInt& c);
 
 #endif // ADD_H

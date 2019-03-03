@@ -60,6 +60,11 @@ class CudaBigInt
         assert(err == cudaSuccess);
     }
     
+    ~CudaBigInt()
+    {
+        cudaFree(val);
+    }
+    
     int           sign;
     unsigned int  word_len;
     unsigned int * val;

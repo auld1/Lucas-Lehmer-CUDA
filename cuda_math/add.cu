@@ -3,9 +3,21 @@
 #include "bigint.h"
 #include "carry.h"
 #include "memory.h"
+#include "rand.h"
 
 #include <assert.h>
 #include <stdio.h>
+#include <time.h>
+
+#include <gmp.h>
+
+#define ADD_BLOCK_SIZE (128)
+
+void
+set_mpz_uint(mpz_t t, unsigned int* val, int len)
+{
+    mpz_import(t, len, -1, sizeof(unsigned int), -1, 0, val);
+}
 
 __device__
 unsigned int cuda_add_digit(const unsigned int* __restrict__ a,
@@ -47,7 +59,7 @@ void cuda_add(const unsigned int* __restrict__ a,
     c[i] = cuda_add_digit(a, b, i, &carry_out[i], 0, N);
 }
 
-void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
+void add(CudaBigInt& a, CudaBigInt& b, CudaBigInt& c)
 {
     unsigned char* byte_carry1;
     unsigned char* byte_carry2;
@@ -81,13 +93,13 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
      
-    cuda_add<<<512, a.word_len/512>>>(a.val, b.val, c.val, byte_carry1, a.word_len);
+    cuda_add<<<(a.word_len/ADD_BLOCK_SIZE), ADD_BLOCK_SIZE>>>(a.val, b.val, c.val, byte_carry1, a.word_len);
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
     
     do
     {
-        cuda_byte_carry<<<512, c.word_len/512>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
+        cuda_byte_carry<<<(c.word_len/ADD_BLOCK_SIZE), ADD_BLOCK_SIZE>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
     
         err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
         assert(err == cudaSuccess);
@@ -100,57 +112,63 @@ void add(CudaBigInt a, CudaBigInt b, CudaBigInt c)
         byte_carry2 = temp;
     } while (should_carry_host);
     
+    cudaFree(byte_carry1);
+    cudaFree(byte_carry2);
+    cudaFree(should_carry_cuda);
+    
 }
 
 int
-main()
+test()
 {
-    CudaBigInt a(1024*1024*8);
-    CudaBigInt b(1024*1024*8);
-    CudaBigInt c(1024*1024*8*2);
+    CudaBigInt a(1024*1024);
+    CudaBigInt b(1024*1024);
+    CudaBigInt c(1024*1024*2);
     
-    unsigned int a_host[a.word_len];
-    unsigned int b_host[b.word_len];
+    mpz_t a_gmp;
+    mpz_t b_gmp;
+    mpz_t c_gmp;
+    mpz_t add_gmp;
+    
+    mpz_init2(a_gmp, a.word_len*32);
+    mpz_init2(b_gmp, b.word_len*32);
+    mpz_init2(c_gmp, c.word_len*32);
+    mpz_init2(add_gmp, c.word_len*32);
+    
+    unsigned int* a_host;
+    unsigned int* b_host;
     unsigned int c_host[c.word_len];
     
+    srand(time(NULL));
     
-    int i = 0;
+    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
     
-    for(i = 0; i < c.word_len; i++)
-    {
-        c_host[i] = 0;
-    }
+    a_host = get_random_array(a.val, a.word_len);
+    b_host = get_random_array(b.val, a.word_len);
     
-    for(i = 0; i < a.word_len; i++)
-    {
-        a_host[i] = 0;
-        b_host[i] = 0;
-    }
-    
-    for(i = 0; i < a.word_len; i++)
-    {
-        a_host[i] = 0xffffffff;
-        b_host[i] = 0;
-    }
-    a_host[0] = 0xffffffff;
-    b_host[0] = 0xffffffff;
-    
-    
-    for(i = 0; i < c.word_len; i++)
-    {
-        c_host[i] = 0;
-    }
-    
-    
-    cudaMemcpy(a.val, a_host, a.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    cudaMemcpy(b.val, b_host, b.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    cudaMemcpy(c.val, c_host, c.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    set_mpz_uint(a_gmp, a_host, a.word_len);
+    set_mpz_uint(b_gmp, b_host, b.word_len);
     
     add(a, b, c);
     
-    
     cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+    set_mpz_uint(c_gmp, c_host, c.word_len);
+    mpz_add(add_gmp, a_gmp, b_gmp);
     
-
+    assert(0 == mpz_cmp(add_gmp, c_gmp));
+    
     return 0;
+}
+
+
+int
+main(void)
+{
+    int i = 0;
+    printf("Testing 10 iterations of add on random digits\n");
+    for (i = 0; i < 10; i++)
+    {
+        test();
+    }
+    printf("Passed\n");
 }

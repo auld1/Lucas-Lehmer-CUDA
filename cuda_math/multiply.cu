@@ -3,17 +3,21 @@
 #include "bigint.h"
 #include "carry.h"
 #include "memory.h"
+#include "rand.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-unsigned int rand_uint32(void) {
-  unsigned int r = 0;
-  for (int i=0; i<32; i += 30) {
-    r = r*((unsigned int)RAND_MAX + 1) + rand();
-  }
-  return r;
+#include <gmp.h>
+
+#define MULTIPLY_BLOCK_SIZE (64)
+
+void
+set_mpz_uint(mpz_t t, unsigned int* val, int len)
+{
+    mpz_import(t, len, -1, sizeof(unsigned int), -1, 0, val);
 }
 
 __device__ unsigned int
@@ -58,25 +62,8 @@ cuda_multiply_gradeschool(const unsigned int* __restrict__ a,
     c[i] = cuda_multiply_gradeschool_digit(a, b, i, &carry_out[i], 0, N);
 }
 
-__global__ void
-cuda_multiply_gradeschool_4(const unsigned int* __restrict__ a,
-                            const unsigned int* __restrict__ b,
-                            unsigned int* __restrict__ c,
-                            unsigned long long* __restrict__ carry_out,
-                            const int N)
-{
-    int i = (blockIdx.x*blockDim.x + threadIdx.x) * 4;
-    unsigned long long carry = 0;
-    
-    c[i] = cuda_multiply_gradeschool_digit(a, b, i, &carry, 0, N);
-    c[i+1] = cuda_multiply_gradeschool_digit(a, b, i+1, &carry, carry, N);
-    c[i+2] = cuda_multiply_gradeschool_digit(a, b, i+2, &carry, carry, N);
-    c[i+3] = cuda_multiply_gradeschool_digit(a, b, i+3, &carry, carry, N);
-    carry_out[i/4] = carry;
-}
-
 void
-multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
+multiply(CudaBigInt& a, CudaBigInt& b, CudaBigInt& c)
 {
     unsigned long long* long_carry;
     unsigned char* byte_carry1;
@@ -96,11 +83,11 @@ multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
      
-    cuda_multiply_gradeschool_4<<<512, (c.word_len/512)>>>(a.val, b.val, c.val, long_carry, c.word_len);
+    cuda_multiply_gradeschool<<<(c.word_len/MULTIPLY_BLOCK_SIZE), MULTIPLY_BLOCK_SIZE>>>(a.val, b.val, c.val, long_carry, c.word_len);
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
     
-    cuda_long_carry_4<<<512, (c.word_len/512)>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
+    cuda_long_carry<<<(c.word_len/MULTIPLY_BLOCK_SIZE), MULTIPLY_BLOCK_SIZE>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
     err = cudaDeviceSynchronize();
     assert(err == cudaSuccess);
     
@@ -112,7 +99,7 @@ multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
     
     while (should_carry_host)
     {
-        cuda_byte_carry_4<<<512, (c.word_len/512)>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
+        cuda_byte_carry<<<(c.word_len/MULTIPLY_BLOCK_SIZE), MULTIPLY_BLOCK_SIZE>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
     
         err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
         assert(err == cudaSuccess);
@@ -125,56 +112,64 @@ multiply(CudaBigInt a, CudaBigInt b, CudaBigInt c)
         byte_carry2 = temp;
     }
     c.sign = a.sign*b.sign;
+    
+    cudaFree(long_carry);
+    cudaFree(byte_carry1);
+    cudaFree(byte_carry2);
+    cudaFree(should_carry_cuda);
 }
 
 int
-main()
+test()
 {
-    CudaBigInt a(1024*1024*8);
-    CudaBigInt b(1024*1024*8);
-    CudaBigInt c(1024*1024*8*2);
+    CudaBigInt a(1024*1024*4);
+    CudaBigInt b(1024*1024*4);
+    CudaBigInt c(1024*1024*4*2);
     
-    unsigned int a_host[a.word_len];
-    unsigned int b_host[b.word_len];
+    mpz_t a_gmp;
+    mpz_t b_gmp;
+    mpz_t c_gmp;
+    mpz_t mul_gmp;
+    
+    mpz_init2(a_gmp, a.word_len*32);
+    mpz_init2(b_gmp, b.word_len*32);
+    mpz_init2(c_gmp, c.word_len*32);
+    mpz_init2(mul_gmp, c.word_len*32);
+    
+    unsigned int* a_host;
+    unsigned int* b_host;
     unsigned int c_host[c.word_len];
+    
+    srand(time(NULL));
     
     cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
     
-    int i = 0;
+    a_host = get_random_array(a.val, a.word_len);
+    b_host = get_random_array(b.val, a.word_len);
     
-    for(i = 0; i < c.word_len; i++)
-    {
-        c_host[i] = 0;
-    }
-    
-    for(i = 0; i < a.word_len; i++)
-    {
-        a_host[i] = 0;
-        b_host[i] = 0;
-    }
-    
-    for(i = 0; i < a.word_len; i++)
-    {
-        a_host[i] = rand_uint32();
-        b_host[i] = rand_uint32();
-    }
-    
-    
-    for(i = 0; i < c.word_len; i++)
-    {
-        c_host[i] = 0;
-    }
-    
-    
-    cudaMemcpy(a.val, a_host, a.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    cudaMemcpy(b.val, b_host, b.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    cudaMemcpy(c.val, c_host, c.word_len * sizeof(unsigned int), cudaMemcpyHostToDevice);
+    set_mpz_uint(a_gmp, a_host, a.word_len);
+    set_mpz_uint(b_gmp, b_host, b.word_len);
     
     multiply(a, b, c);
     
-    
     cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+    set_mpz_uint(c_gmp, c_host, c.word_len);
+    mpz_mul(mul_gmp, a_gmp, b_gmp);
     
-
+    assert(0 == mpz_cmp(mul_gmp, c_gmp));
+    
     return 0;
+}
+
+
+int
+main(void)
+{
+    int i = 0;
+    printf("Testing 1000 iterations of multiply on random digits\n");
+    for (i = 0; i < 1000; i++)
+    {
+        test();
+    }
+    printf("Passed\n");
 }
