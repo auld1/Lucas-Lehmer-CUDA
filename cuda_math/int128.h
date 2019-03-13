@@ -1,0 +1,23 @@
+#ifndef INT128_H
+#define INT128_H
+
+
+#define BITS62_0 0x7FFFFFFFFFFFFFFFLL
+#define BIT_52   0x0010000000000000LL
+#define BITS51_0 0x000FFFFFFFFFFFFFLL
+#define HIGHBIT  0x8000000000000000LL
+#define ALLBITS  0xFFFFFFFFFFFFFFFFLL
+
+#define SIGBITS_HI 0x7FFFFFFF00000000LL
+#define HI_WORD 0xFFFFFFFF00000000LL
+#define LO_WORD 0x00000000FFFFFFFFLL
+
+
+typedef struct int128_t
+{
+    unsigned long long int low;
+    signed long long int high;
+} int128_t;
+
+
+#endif // INT128_H
