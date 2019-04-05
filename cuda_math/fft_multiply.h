@@ -2,8 +2,9 @@
 #define FFT_MULTIPLY_H
 
 #include <cuComplex.h>
+#include "bigint.h"
 
 void
-cooley_tukey_fft(unsigned int* in, cuDoubleComplex* out, int len);
+fft_square(CudaBigInt& a, CudaBigInt& c);
 
 #endif // FFT_MULTIPLY_H

@@ -8,64 +8,27 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include <cuComplex.h>
 
-#include <gmp.h>
-
-unsigned int rand_uint32(void) {
-  unsigned int r = 0;
-  for (int i=0; i<32; i += 30) {
-    r = r*((unsigned int)RAND_MAX + 1) + rand();
-  }
-  return r;
-}
-
 __global__ void
 split(const unsigned int* __restrict__ in,
-      unsigned int* __restrict__ out,
-      int in_words_per_part,
-      int out_words_per_part)
+      cuDoubleComplex* __restrict__ out)
 {
-    int in_idx = (blockIdx.x*blockDim.x + threadIdx.x) * in_words_per_part;
-    int out_idx =  (blockIdx.x*blockDim.x + threadIdx.x) * out_words_per_part;
-    int i = 0;
+    int idx = (blockIdx.x*blockDim.x + threadIdx.x);
     
-    for (i = 0; i < in_words_per_part; i++)
-    {
-        out[out_idx + i] = in[in_idx + i];
-    }
+    out[idx*4].x = (double) (in[idx] & 0xff);
+    out[idx*4].y = 0;
     
-    for (; i < out_words_per_part; i++)
-    {
-        out[out_idx + i] = 0;
-    }
-}
-
-__global__ void
-ssa_fft(unsigned int* __restrict__ A,
-        int words_per_part,
-        int total_parts,
-        int root_of_unity_shift,
-        int m,
-        unsigned int* __restrict__ scratch1,
-        unsigned int* __restrict__ scratch2)
-{
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int k = 2 * (idx/m);
-    k *= m;
-    int j = idx % (m/2);
-    (void) k;
-    (void) j;
-}
-
-__global__ void
-ints_to_complex_bitreverse(const unsigned int* __restrict__ in,
-                           cuDoubleComplex* __restrict__ out,
-                           int bitlen)
-{
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    out[(__brev(idx) >> (32-bitlen))] = make_cuDoubleComplex((double)in[idx], 0);
+    out[idx*4+1].x = (double) ((in[idx] >> 8) & 0xff);
+    out[idx*4+1].y = 0;
+    
+    out[idx*4+2].x = (double) ((in[idx] >> 16) & 0xff);
+    out[idx*4+2].y = 0;
+    
+    out[idx*4+3].x = (double) ((in[idx] >> 24) & 0xff);
+    out[idx*4+3].y = 0;
 }
 
 __global__ void
@@ -82,32 +45,13 @@ complex_to_complex_bitreverse(cuDoubleComplex* __restrict__ out,
     }
 }
 
-__global__ void
-ints_to_complex_bitreverse_split(const unsigned int* __restrict__ in,
-                                 cuDoubleComplex* __restrict__ out,
-                                 int bitlen)
-{
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    out[(__brev(idx*2) >> (32-(bitlen+1)))] = make_cuDoubleComplex((double)(in[idx]&0xffff), 0);
-    out[(__brev(idx*2+1) >> (32-(bitlen+1)))] = make_cuDoubleComplex((double)((in[idx]>>16)&0xffff), 0);
-}
-
-__global__ void
-words_to_complex(const unsigned int* __restrict__ in,
-                 cuDoubleComplex* __restrict__ out)
-{
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    out[idx*2] = make_cuDoubleComplex((double)(in[idx] & 0xffff), 0);
-    out[idx*2+1] = make_cuDoubleComplex((double)((in[idx] >> 16) & 0xffff), 0);
-}
-
 // Found at https://devtalk.nvidia.com/default/topic/814159/additional-cucomplex-functions-cucnorm-cucsqrt-cucexp-and-some-complex-double-functions-/
-__host__ __device__ static __inline__ cuDoubleComplex
+/*__host__ __device__ static __inline__ cuDoubleComplex
 cuCexp(cuDoubleComplex x)
 {
 	double factor = exp(x.x);
 	return make_cuDoubleComplex(factor * cos(x.y), factor * sin(x.y));
-}
+}*/
 
 __global__ void
 cooley_tukey_complex_fft(cuDoubleComplex* __restrict__ A,
@@ -147,137 +91,123 @@ pointwise_square(cuDoubleComplex* __restrict__ A)
 
 #define FFT_BLOCK_SIZE (128)
 void
-cooley_tukey_fft(unsigned int* in, cuDoubleComplex* out, int len)
+cooley_tukey_fft(cuDoubleComplex* a, int len)
 {
-    cuDoubleComplex* cuda_out;
-    unsigned int* cuda_in;
-    
     assert(isPow2(len));
     
-    cuda_malloc_clear((void**) &cuda_out, len * sizeof(cuDoubleComplex));
-    cuda_malloc_clear((void**) &cuda_in, len * sizeof(unsigned int));
-    
-    cudaMemcpy(cuda_in, in, len * sizeof(unsigned int), cudaMemcpyHostToDevice);
-    
-    ints_to_complex_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_in, cuda_out, log2(len));
+    complex_to_complex_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, log2(len));
 
     
     for (int s = 1; s <= log2(len); s++)
     {
-        cooley_tukey_complex_fft<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_out, s, -1, make_cuDoubleComplex(0, ((double)-2.0) * M_PI / (1<<s)), len);
+        cooley_tukey_complex_fft<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, s, -1, make_cuDoubleComplex(0, ((double)-2.0) * M_PI / (1<<s)), len);
     }
-    
-    cudaMemcpy(out, cuda_out, len * sizeof(cuDoubleComplex), cudaMemcpyDeviceToHost);
-    
-    cudaFree(cuda_out);
-    cudaFree(cuda_in);
 }
 
 void
-cooley_tukey_ifft(cuDoubleComplex* in, unsigned int* out, int len)
+cooley_tukey_ifft(cuDoubleComplex* a, int len)
 {
-    cuDoubleComplex* cuda_in;
-    cuDoubleComplex* cuda_out;
-    cuDoubleComplex* device_out = (cuDoubleComplex*) malloc(len * sizeof(cuDoubleComplex));
-    
     assert(isPow2(len));
     
-    cuda_malloc_clear((void**) &cuda_out, len * sizeof(cuDoubleComplex));
-    
-    cudaMemcpy(cuda_out, in, len * sizeof(cuDoubleComplex), cudaMemcpyHostToDevice);
-    
-    complex_to_complex_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_out, log2(len));
+    complex_to_complex_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, log2(len));
 
     
     for (int s = 1; s <= log2(len); s++)
     {
-        cooley_tukey_complex_fft<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_out, s, 1, make_cuDoubleComplex(0, ((double)2.0) * M_PI / (1<<s)), len);
+        cooley_tukey_complex_fft<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, s, 1, make_cuDoubleComplex(0, ((double)2.0) * M_PI / (1<<s)), len);
     }
     
-    cudaMemcpy(device_out, cuda_out, len * sizeof(cuDoubleComplex), cudaMemcpyDeviceToHost);
-    
+    /*
     for (int i = 0; i < len; i++)
     {
         out[i] = (unsigned int) (device_out[i].x + .5);
+    }*/
+}
+
+__global__ void
+cuda_combine(cuDoubleComplex* a, unsigned int* c, unsigned long long* carry)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    
+    unsigned long long result = 0;
+    unsigned int w1 = (unsigned int) (a[idx*4].x + .5);
+    unsigned int w2 = (unsigned int) (a[idx*4+1].x + .5);
+    unsigned int w3 = (unsigned int) (a[idx*4+2].x + .5);
+    unsigned int w4 = (unsigned int) (a[idx*4+3].x + .5);
+    
+    result = w4;
+    result <<= 8;
+    result += w3;
+    result <<= 8;
+    result += w2;
+    result <<= 8;
+    result += w1;
+    
+    c[idx] = result & 0xffffffff;
+    carry[idx] = (result >> 32);
+}
+
+void
+combine(cuDoubleComplex* a, CudaBigInt& c)
+{
+    unsigned long long* long_carry;
+    unsigned char* byte_carry1;
+    unsigned char* byte_carry2;
+    bool* should_carry_cuda;
+    bool should_carry_host;
+    cudaError_t err;
+    
+    cuda_malloc_clear((void**) &long_carry, c.word_len * sizeof(*long_carry));
+    cuda_malloc_clear((void**) &byte_carry1, c.word_len * sizeof(*byte_carry1));
+    cuda_malloc_clear((void**) &byte_carry2, c.word_len * sizeof(*byte_carry2));
+    cuda_malloc_clear((void**) &should_carry_cuda, sizeof(bool));
+    
+    cuda_combine<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, c.val, long_carry);
+    
+    cuda_long_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
+    
+    err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
+    assert(err == cudaSuccess);
+    
+    err = cudaMemset(should_carry_cuda, 0, sizeof(bool));
+    assert(err == cudaSuccess);
+    
+    while (should_carry_host)
+    {
+        cuda_byte_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
+    
+        err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
+        assert(err == cudaSuccess);
+        
+        err = cudaMemset(should_carry_cuda, 0, sizeof(bool));
+        assert(err == cudaSuccess);
+        
+        unsigned char* temp = byte_carry1;
+        byte_carry1 = byte_carry2;
+        byte_carry2 = temp;
     }
     
-    free(device_out);
-    cudaFree(cuda_out);
+    
+    cuda_malloc_free(long_carry);
+    cuda_malloc_free(byte_carry1);
+    cuda_malloc_free(byte_carry2);
+    cuda_malloc_free(should_carry_cuda);
 }
 
 void
 fft_square(CudaBigInt& a, CudaBigInt& c)
 {
-    cuDoubleComplex* cuda_out;
-    int cuda_out_word_len = c.word_len*2;
+    cuDoubleComplex* cuda_a;
     
-    assert(isPow2(a.word_len));
-    assert(c.word_len = 2*a.word_len);
+    cuda_malloc_clear((void**) &cuda_a, sizeof(*cuda_a)*a.word_len*8);
     
-    cuda_malloc_clear((void**) &cuda_out, cuda_out_word_len * sizeof(cuDoubleComplex));
+    split<<<(a.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a.val, cuda_a);
     
-    ints_to_complex_bitreverse_split<<<(a.word_len/32), 32>>>(a.val, cuda_out, log2(c.word_len));
-
+    cooley_tukey_fft(cuda_a, a.word_len*8);
+    pointwise_square<<<(a.word_len*8/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_a);
+    cooley_tukey_ifft(cuda_a, a.word_len*8);
     
-    for (int m = 2; m <= c.word_len*2; m*=2)
-    {
-        //cooley_tukey_complex_fft<<<(cuda_out_word_len/64), 32>>>(cuda_out, m, -1, cuda_out_word_len);
-    }
+    combine(cuda_a, c);
     
-    pointwise_square<<<(cuda_out_word_len/32), 32>>>(cuda_out);
-    
-    
+    cuda_malloc_free(cuda_a);
 }
-
-
-int
-main(void)
-{
-    cuDoubleComplex* host_out;
-    unsigned int* host_in;
-    int len = 1<<26;
-    
-    host_out = (cuDoubleComplex*) malloc(len * sizeof(*host_out));
-    host_in = (unsigned int*) malloc(len * sizeof(*host_in));
-    
-    for (int i = 0; i < len; i++)
-    {
-        host_in[i] = i;
-    }
-    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
-    
-    cooley_tukey_fft(host_in, host_out, len);
-    
-    for (int i = 0; i < len; i++)
-    {
-        host_in[i] = 0;
-    }
-    
-    cooley_tukey_ifft(host_out, host_in, len);
-    
-    for (int i = 0; i < len; i++)
-    {
-        assert(host_in[i] == i);
-        /*
-        if (host_out[i].y >= 0)
-        {
-            printf("%lf+%lfi\n", host_out[i].x, host_out[i].y);
-        } else {
-            printf("%lf%lfi\n", host_out[i].x, host_out[i].y);
-        }*/
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -3,11 +3,12 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #define WORD_BIT_LEN (sizeof(unsigned int) * 8)
 
 
-bool
+static bool
 isPow2(unsigned int val)
 {
     while (val != 1)
@@ -19,6 +20,19 @@ isPow2(unsigned int val)
         val /= 2;
     }
     return true;
+}
+
+
+static unsigned int
+nextPow2(unsigned int val)
+{
+    unsigned int ret = 1;
+    
+    while (ret < val)
+    {
+        ret *= 2;
+    }
+    return ret;
 }
 
 
@@ -44,9 +58,13 @@ class CudaBigInt
     CudaBigInt(unsigned int bit_len)
     {
         cudaError_t err;
-
-        assert(bit_len >= 65536); // make sure there are at least 2048 words
-        assert(isPow2(bit_len)); // make sure the length is a power of 2
+        
+        if (bit_len < 65536)
+        {
+            bit_len = 65536; // make sure there are at least 2048 words
+        }
+        
+        bit_len = nextPow2(bit_len); // make sure the length is a power of 2
         
         sign     = 1;                      // Default positive
         word_len = bit_len / WORD_BIT_LEN; // Set word_len based on bit_len

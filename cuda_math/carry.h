@@ -21,4 +21,10 @@ void cuda_byte_carry(unsigned int* __restrict__ c,
                      unsigned char* __restrict__ carry_out,
                      bool* __restrict__ needs_carry);
 
+__global__
+void cuda_negative_byte_carry(unsigned int* __restrict__ c,
+                              const unsigned char* __restrict__ carry_in,
+                              unsigned char* __restrict__ carry_out,
+                              bool* __restrict__ needs_carry);
+
 #endif // CARRY_H

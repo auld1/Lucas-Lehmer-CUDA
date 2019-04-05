@@ -14,12 +14,6 @@
 
 #define MULTIPLY_BLOCK_SIZE (64)
 
-void
-set_mpz_uint(mpz_t t, unsigned int* val, int len)
-{
-    mpz_import(t, len, -1, sizeof(unsigned int), -1, 0, val);
-}
-
 __device__ unsigned int
 cuda_multiply_gradeschool_digit(const unsigned int* __restrict__ a,
                                 const unsigned int* __restrict__ b,
@@ -79,17 +73,10 @@ multiply(CudaBigInt& a, CudaBigInt& b, CudaBigInt& c)
     cuda_malloc_clear((void**) &byte_carry1, c.word_len * sizeof(*byte_carry1));
     cuda_malloc_clear((void**) &byte_carry2, c.word_len * sizeof(*byte_carry2));
     cuda_malloc_clear((void**) &should_carry_cuda, sizeof(bool));
-    
-    err = cudaDeviceSynchronize();
-    assert(err == cudaSuccess);
      
     cuda_multiply_gradeschool<<<(c.word_len/MULTIPLY_BLOCK_SIZE), MULTIPLY_BLOCK_SIZE>>>(a.val, b.val, c.val, long_carry, c.word_len);
-    err = cudaDeviceSynchronize();
-    assert(err == cudaSuccess);
     
     cuda_long_carry<<<(c.word_len/MULTIPLY_BLOCK_SIZE), MULTIPLY_BLOCK_SIZE>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
-    err = cudaDeviceSynchronize();
-    assert(err == cudaSuccess);
     
     err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
     assert(err == cudaSuccess);
@@ -113,63 +100,8 @@ multiply(CudaBigInt& a, CudaBigInt& b, CudaBigInt& c)
     }
     c.sign = a.sign*b.sign;
     
-    cudaFree(long_carry);
-    cudaFree(byte_carry1);
-    cudaFree(byte_carry2);
-    cudaFree(should_carry_cuda);
-}
-
-int
-test()
-{
-    CudaBigInt a(1024*1024*4);
-    CudaBigInt b(1024*1024*4);
-    CudaBigInt c(1024*1024*4*2);
-    
-    mpz_t a_gmp;
-    mpz_t b_gmp;
-    mpz_t c_gmp;
-    mpz_t mul_gmp;
-    
-    mpz_init2(a_gmp, a.word_len*32);
-    mpz_init2(b_gmp, b.word_len*32);
-    mpz_init2(c_gmp, c.word_len*32);
-    mpz_init2(mul_gmp, c.word_len*32);
-    
-    unsigned int* a_host;
-    unsigned int* b_host;
-    unsigned int c_host[c.word_len];
-    
-    srand(time(NULL));
-    
-    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
-    
-    a_host = get_random_array(a.val, a.word_len);
-    b_host = get_random_array(b.val, a.word_len);
-    
-    set_mpz_uint(a_gmp, a_host, a.word_len);
-    set_mpz_uint(b_gmp, b_host, b.word_len);
-    
-    multiply(a, b, c);
-    
-    cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
-    set_mpz_uint(c_gmp, c_host, c.word_len);
-    mpz_mul(mul_gmp, a_gmp, b_gmp);
-    
-    assert(0 == mpz_cmp(mul_gmp, c_gmp));
-    
-    return 0;
-}
-
-
-int
-main(void)
-{
-    int i = 0;
-    printf("Testing 1000 iterations of multiply on random digits\n");
-    for (i = 0; i < 1000; i++)
-    {
-        test();
-    }
-    printf("Passed\n");
+    cuda_malloc_free(long_carry);
+    cuda_malloc_free(byte_carry1);
+    cuda_malloc_free(byte_carry2);
+    cuda_malloc_free(should_carry_cuda);
 }
