@@ -1,7 +1,8 @@
 #include "mers.h"
 #include "bigint.h"
 
-#define MERS_BLOCK_SIZE (512)
+#define MERS_BLOCK_SIZE (128)
+
 __global__
 void cuda_mers(unsigned int m,
                unsigned int* __restrict__ c)

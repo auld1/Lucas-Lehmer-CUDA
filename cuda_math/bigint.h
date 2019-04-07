@@ -59,9 +59,9 @@ class CudaBigInt
     {
         cudaError_t err;
         
-        if (bit_len < 65536)
+        if (bit_len < 4096)
         {
-            bit_len = 65536; // make sure there are at least 2048 words
+            bit_len = 4096; // make sure there are at least 2048 words
         }
         
         bit_len = nextPow2(bit_len); // make sure the length is a power of 2

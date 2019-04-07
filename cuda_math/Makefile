@@ -1,7 +1,7 @@
 lucas_lehmer : main.o add.o carry.o compare.o fft_multiply.o \
-				memory.o mers.o mod.o multiply.o rand.o subtract.o
-	nvcc -lgmp -o lucas_lehmer main.o add.o carry.o compare.o \
-		fft_multiply.o memory.o mers.o mod.o multiply.o rand.o subtract.o
+				llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o
+	nvcc -lgmp -lcufft -o lucas_lehmer main.o add.o carry.o compare.o \
+		fft_multiply.o llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o
 
 main.o : main.cu
 	nvcc -c main.cu
@@ -17,6 +17,9 @@ compare.o : compare.cu compare.h
 
 fft_multiply.o : fft_multiply.cu fft_multiply.h
 	nvcc -c fft_multiply.cu
+
+llntt.o : llntt.cu llntt.h
+	nvcc -c llntt.cu
 
 memory.o : memory.cu memory.h
 	nvcc -c memory.cu
@@ -36,6 +39,10 @@ rand.o : rand.cu rand.h
 subtract.o : subtract.cu subtract.h
 	nvcc -c subtract.cu
 
+untt.o : untt.cu untt.h
+	nvcc -c untt.cu
+
+
 clean :
 	rm lucas_lehmer main.o add.o carry.o compare.o \
-		fft_multiply.o memory.o mers.o mod.o multiply.o rand.o subtract.o
+		fft_multiply.o llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o

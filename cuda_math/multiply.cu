@@ -12,7 +12,7 @@
 
 #include <gmp.h>
 
-#define MULTIPLY_BLOCK_SIZE (64)
+#define MULTIPLY_BLOCK_SIZE (128)
 
 __device__ unsigned int
 cuda_multiply_gradeschool_digit(const unsigned int* __restrict__ a,

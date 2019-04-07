@@ -10,6 +10,7 @@ void random_uint(unsigned int* __restrict__ a,
                  unsigned int seed)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    seed += clock();
     unsigned int state = (48271 * seed) % 0x7fffffff;
     state += idx;
     int i = 0;

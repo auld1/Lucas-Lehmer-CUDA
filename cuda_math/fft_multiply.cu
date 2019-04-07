@@ -12,8 +12,11 @@
 
 #include <cuComplex.h>
 
+
+#define FFT_BLOCK_SIZE (128)
+
 __global__ void
-split(const unsigned int* __restrict__ in,
+split8(const unsigned int* __restrict__ in,
       cuDoubleComplex* __restrict__ out)
 {
     int idx = (blockIdx.x*blockDim.x + threadIdx.x);
@@ -29,6 +32,92 @@ split(const unsigned int* __restrict__ in,
     
     out[idx*4+3].x = (double) ((in[idx] >> 24) & 0xff);
     out[idx*4+3].y = 0;
+}
+
+__global__ void
+split4(const unsigned int* __restrict__ in,
+      cuDoubleComplex* __restrict__ out)
+{
+    int idx = (blockIdx.x*blockDim.x + threadIdx.x);
+    
+    out[idx*8].x = (double) (in[idx] & 0xf);
+    out[idx*8].y = 0;
+    
+    out[idx*8+1].x = (double) ((in[idx] >> 4) & 0xf);
+    out[idx*8+1].y = 0;
+    
+    out[idx*8+2].x = (double) ((in[idx] >> 8) & 0xf);
+    out[idx*8+2].y = 0;
+    
+    out[idx*8+3].x = (double) ((in[idx] >> 12) & 0xf);
+    out[idx*8+3].y = 0;
+    
+    out[idx*8+4].x = (double) ((in[idx] >> 16) & 0xf);
+    out[idx*8+4].y = 0;
+    
+    out[idx*8+5].x = (double) ((in[idx] >> 20) & 0xf);
+    out[idx*8+5].y = 0;
+    
+    out[idx*8+6].x = (double) ((in[idx] >> 24) & 0xf);
+    out[idx*8+6].y = 0;
+    
+    out[idx*8+7].x = (double) ((in[idx] >> 28) & 0xf);
+    out[idx*8+7].y = 0;
+}
+
+__global__ void
+split2(const unsigned int* __restrict__ in,
+      cuDoubleComplex* __restrict__ out)
+{
+    int idx = (blockIdx.x*blockDim.x + threadIdx.x);
+    
+    out[idx*16].x = (double) (in[idx] & 0x3);
+    out[idx*16].y = 0;
+    
+    out[idx*16+1].x = (double) ((in[idx] >> 2) & 0x3);
+    out[idx*16+1].y = 0;
+    
+    out[idx*16+2].x = (double) ((in[idx] >> 4) & 0x3);
+    out[idx*16+2].y = 0;
+    
+    out[idx*16+3].x = (double) ((in[idx] >> 6) & 0x3);
+    out[idx*16+3].y = 0;
+    
+    out[idx*16+4].x = (double) ((in[idx] >> 8) & 0x3);
+    out[idx*16+4].y = 0;
+    
+    out[idx*16+5].x = (double) ((in[idx] >> 10) & 0x3);
+    out[idx*16+5].y = 0;
+    
+    out[idx*16+6].x = (double) ((in[idx] >> 12) & 0x3);
+    out[idx*16+6].y = 0;
+    
+    out[idx*16+7].x = (double) ((in[idx] >> 14) & 0x3);
+    out[idx*16+7].y = 0;
+    
+    out[idx*16+8].x = (double) ((in[idx] >> 16) & 0x3);
+    out[idx*16+8].y = 0;
+    
+    out[idx*16+9].x = (double) ((in[idx] >> 18) & 0x3);
+    out[idx*16+9].y = 0;
+    
+    out[idx*16+10].x = (double) ((in[idx] >> 20) & 0x3);
+    out[idx*16+10].y = 0;
+    
+    out[idx*16+11].x = (double) ((in[idx] >> 22) & 0x3);
+    out[idx*16+11].y = 0;
+    
+    out[idx*16+12].x = (double) ((in[idx] >> 24) & 0x3);
+    out[idx*16+12].y = 0;
+    
+    out[idx*16+13].x = (double) ((in[idx] >> 26) & 0x3);
+    out[idx*16+13].y = 0;
+    
+    out[idx*16+14].x = (double) ((in[idx] >> 28) & 0x3);
+    out[idx*16+14].y = 0;
+    
+    out[idx*16+15].x = (double) ((in[idx] >> 30) & 0x3);
+    out[idx*16+15].y = 0;
 }
 
 __global__ void
@@ -89,7 +178,6 @@ pointwise_square(cuDoubleComplex* __restrict__ A)
     A[idx] = cuCmul(A[idx], A[idx]);
 }
 
-#define FFT_BLOCK_SIZE (128)
 void
 cooley_tukey_fft(cuDoubleComplex* a, int len)
 {
@@ -125,7 +213,7 @@ cooley_tukey_ifft(cuDoubleComplex* a, int len)
 }
 
 __global__ void
-cuda_combine(cuDoubleComplex* a, unsigned int* c, unsigned long long* carry)
+cuda_combine8(cuDoubleComplex* a, unsigned int* c, unsigned long long* carry)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     
@@ -147,8 +235,102 @@ cuda_combine(cuDoubleComplex* a, unsigned int* c, unsigned long long* carry)
     carry[idx] = (result >> 32);
 }
 
+__global__ void
+cuda_combine4(cuDoubleComplex* a, unsigned int* c, unsigned long long* carry)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    
+    unsigned long long result = 0;
+    unsigned int w1 = (unsigned int) (a[idx*8].x + .5);
+    unsigned int w2 = (unsigned int) (a[idx*8+1].x + .5);
+    unsigned int w3 = (unsigned int) (a[idx*8+2].x + .5);
+    unsigned int w4 = (unsigned int) (a[idx*8+3].x + .5);
+    unsigned int w5 = (unsigned int) (a[idx*8+4].x + .5);
+    unsigned int w6 = (unsigned int) (a[idx*8+5].x + .5);
+    unsigned int w7 = (unsigned int) (a[idx*8+6].x + .5);
+    unsigned int w8 = (unsigned int) (a[idx*8+7].x + .5);
+    
+    result = w8;
+    result <<= 4;
+    result += w7;
+    result <<= 4;
+    result += w6;
+    result <<= 4;
+    result += w5;
+    result <<= 4;
+    result += w4;
+    result <<= 4;
+    result += w3;
+    result <<= 4;
+    result += w2;
+    result <<= 4;
+    result += w1;
+    
+    c[idx] = result & 0xffffffff;
+    carry[idx] = (result >> 32);
+}
+
+__global__ void
+cuda_combine2(cuDoubleComplex* a, unsigned int* c, unsigned long long* carry)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    
+    unsigned long long result = 0;
+    unsigned int w1 = (unsigned int) (a[idx*16].x + .5);
+    unsigned int w2 = (unsigned int) (a[idx*16+1].x + .5);
+    unsigned int w3 = (unsigned int) (a[idx*16+2].x + .5);
+    unsigned int w4 = (unsigned int) (a[idx*16+3].x + .5);
+    unsigned int w5 = (unsigned int) (a[idx*16+4].x + .5);
+    unsigned int w6 = (unsigned int) (a[idx*16+5].x + .5);
+    unsigned int w7 = (unsigned int) (a[idx*16+6].x + .5);
+    unsigned int w8 = (unsigned int) (a[idx*16+7].x + .5);
+    unsigned int w9 = (unsigned int) (a[idx*16+8].x + .5);
+    unsigned int w10 = (unsigned int) (a[idx*16+9].x + .5);
+    unsigned int w11 = (unsigned int) (a[idx*16+10].x + .5);
+    unsigned int w12 = (unsigned int) (a[idx*16+11].x + .5);
+    unsigned int w13 = (unsigned int) (a[idx*16+12].x + .5);
+    unsigned int w14 = (unsigned int) (a[idx*16+13].x + .5);
+    unsigned int w15 = (unsigned int) (a[idx*16+14].x + .5);
+    unsigned int w16 = (unsigned int) (a[idx*16+15].x + .5);
+    
+    result = w16;
+    result <<= 2;
+    result += w15;
+    result <<= 2;
+    result += w14;
+    result <<= 2;
+    result += w13;
+    result <<= 2;
+    result += w12;
+    result <<= 2;
+    result += w11;
+    result <<= 2;
+    result += w10;
+    result <<= 2;
+    result += w9;
+    result <<= 2;
+    result += w8;
+    result <<= 2;
+    result += w7;
+    result <<= 2;
+    result += w6;
+    result <<= 2;
+    result += w5;
+    result <<= 2;
+    result += w4;
+    result <<= 2;
+    result += w3;
+    result <<= 2;
+    result += w2;
+    result <<= 2;
+    result += w1;
+    
+    c[idx] = result & 0xffffffff;
+    carry[idx] = (result >> 32);
+}
+
 void
-combine(cuDoubleComplex* a, CudaBigInt& c)
+combine8(cuDoubleComplex* a, CudaBigInt& c)
 {
     unsigned long long* long_carry;
     unsigned char* byte_carry1;
@@ -162,7 +344,101 @@ combine(cuDoubleComplex* a, CudaBigInt& c)
     cuda_malloc_clear((void**) &byte_carry2, c.word_len * sizeof(*byte_carry2));
     cuda_malloc_clear((void**) &should_carry_cuda, sizeof(bool));
     
-    cuda_combine<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, c.val, long_carry);
+    cuda_combine8<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, c.val, long_carry);
+    
+    cuda_long_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
+    
+    err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
+    assert(err == cudaSuccess);
+    
+    err = cudaMemset(should_carry_cuda, 0, sizeof(bool));
+    assert(err == cudaSuccess);
+    
+    while (should_carry_host)
+    {
+        cuda_byte_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
+    
+        err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
+        assert(err == cudaSuccess);
+        
+        err = cudaMemset(should_carry_cuda, 0, sizeof(bool));
+        assert(err == cudaSuccess);
+        
+        unsigned char* temp = byte_carry1;
+        byte_carry1 = byte_carry2;
+        byte_carry2 = temp;
+    }
+    
+    
+    cuda_malloc_free(long_carry);
+    cuda_malloc_free(byte_carry1);
+    cuda_malloc_free(byte_carry2);
+    cuda_malloc_free(should_carry_cuda);
+}
+
+void
+combine4(cuDoubleComplex* a, CudaBigInt& c)
+{
+    unsigned long long* long_carry;
+    unsigned char* byte_carry1;
+    unsigned char* byte_carry2;
+    bool* should_carry_cuda;
+    bool should_carry_host;
+    cudaError_t err;
+    
+    cuda_malloc_clear((void**) &long_carry, c.word_len * sizeof(*long_carry));
+    cuda_malloc_clear((void**) &byte_carry1, c.word_len * sizeof(*byte_carry1));
+    cuda_malloc_clear((void**) &byte_carry2, c.word_len * sizeof(*byte_carry2));
+    cuda_malloc_clear((void**) &should_carry_cuda, sizeof(bool));
+    
+    cuda_combine4<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, c.val, long_carry);
+    
+    cuda_long_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
+    
+    err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
+    assert(err == cudaSuccess);
+    
+    err = cudaMemset(should_carry_cuda, 0, sizeof(bool));
+    assert(err == cudaSuccess);
+    
+    while (should_carry_host)
+    {
+        cuda_byte_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, byte_carry1, byte_carry2, should_carry_cuda);
+    
+        err = cudaMemcpy(&should_carry_host, should_carry_cuda, sizeof(bool), cudaMemcpyDeviceToHost);
+        assert(err == cudaSuccess);
+        
+        err = cudaMemset(should_carry_cuda, 0, sizeof(bool));
+        assert(err == cudaSuccess);
+        
+        unsigned char* temp = byte_carry1;
+        byte_carry1 = byte_carry2;
+        byte_carry2 = temp;
+    }
+    
+    
+    cuda_malloc_free(long_carry);
+    cuda_malloc_free(byte_carry1);
+    cuda_malloc_free(byte_carry2);
+    cuda_malloc_free(should_carry_cuda);
+}
+
+void
+combine2(cuDoubleComplex* a, CudaBigInt& c)
+{
+    unsigned long long* long_carry;
+    unsigned char* byte_carry1;
+    unsigned char* byte_carry2;
+    bool* should_carry_cuda;
+    bool should_carry_host;
+    cudaError_t err;
+    
+    cuda_malloc_clear((void**) &long_carry, c.word_len * sizeof(*long_carry));
+    cuda_malloc_clear((void**) &byte_carry1, c.word_len * sizeof(*byte_carry1));
+    cuda_malloc_clear((void**) &byte_carry2, c.word_len * sizeof(*byte_carry2));
+    cuda_malloc_clear((void**) &should_carry_cuda, sizeof(bool));
+    
+    cuda_combine2<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, c.val, long_carry);
     
     cuda_long_carry<<<(c.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(c.val, long_carry, byte_carry1, should_carry_cuda);
     
@@ -199,15 +475,16 @@ fft_square(CudaBigInt& a, CudaBigInt& c)
 {
     cuDoubleComplex* cuda_a;
     
-    cuda_malloc_clear((void**) &cuda_a, sizeof(*cuda_a)*a.word_len*8);
+    cuda_malloc_clear((void**) &cuda_a, sizeof(*cuda_a)*a.word_len*32);
     
-    split<<<(a.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a.val, cuda_a);
+    split2<<<(a.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a.val, cuda_a);
     
-    cooley_tukey_fft(cuda_a, a.word_len*8);
-    pointwise_square<<<(a.word_len*8/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_a);
-    cooley_tukey_ifft(cuda_a, a.word_len*8);
+    cooley_tukey_fft(cuda_a, a.word_len*32);
+    pointwise_square<<<(a.word_len*32/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_a);
+    cooley_tukey_ifft(cuda_a, a.word_len*32);
     
-    combine(cuda_a, c);
+    combine2(cuda_a, c);
     
     cuda_malloc_free(cuda_a);
 }
+

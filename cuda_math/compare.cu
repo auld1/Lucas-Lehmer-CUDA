@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 
-#define COMPARE_BLOCK_SIZE (512)
+#define COMPARE_BLOCK_SIZE (128)
 
 __global__ void
 ge_word(const unsigned int* a,
