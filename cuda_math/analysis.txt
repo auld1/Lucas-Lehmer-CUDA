@@ -1,0 +1,896 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+  8.33      0.07     0.07                             cudart::contextStateManager::getRuntimeContextState(cudart::contextState**, bool)
+  8.33      0.14     0.07                             cudart::cuosOnce(int*, void (*)())
+  8.33      0.21     0.07                             cudart::contextState::getEntryFunction(cudart::cudaEntryFunction**, void const*, cudaError)
+  7.14      0.27     0.06                             cudart::globalState::initializeDriver()
+  5.95      0.32     0.05    11211     0.00     0.01  add(CudaBigInt&, CudaBigInt&, CudaBigInt&)
+  5.95      0.37     0.05                             cudart::contextState::applyChanges()
+  4.76      0.41     0.04                             cudart::contextState::prepareToLaunchFunction(CUfunc_st**, cudart::configData const*, void const*)
+  4.76      0.45     0.04                             cudaSetupArgument
+  3.57      0.48     0.03                             cudart::configData::addArgument(void const*, unsigned long, unsigned long)
+  3.57      0.51     0.03                             cudart::getCudartError(cudaError_enum)
+  3.57      0.54     0.03                             cudart::cudaApiLaunchCommon(void const*, bool)
+  3.57      0.57     0.03                             cudart::cudaApiConfigureCall(dim3, dim3, unsigned long, CUstream_st*)
+  3.57      0.60     0.03                             cudaMemcpy
+  2.98      0.63     0.03  2218499     0.00     0.00  __device_stub__Z15cuda_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*)
+  2.98      0.65     0.03                             cudart::cudaApiSetupArgument(void const*, unsigned long, unsigned long)
+  2.38      0.67     0.02                             cudart::doLazyInitContextState()
+  1.79      0.69     0.02  2218499     0.00     0.00  cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*)
+  1.79      0.70     0.02                             cudart::getGlobalState()
+  1.19      0.71     0.01  4761522     0.00     0.00  dim3::dim3(unsigned int, unsigned int, unsigned int)
+  1.19      0.72     0.01                             cudart::configData::reset(dim3, dim3, unsigned long, CUstream_st*)
+  1.19      0.73     0.01                             cudart::cudaApiMemset(void*, int, unsigned long)
+  1.19      0.74     0.01                             cudart::getThreadState(cudart::threadState**)
+  1.19      0.75     0.01                             cudart::cuosTlsSetValue(unsigned int, void*)
+  1.19      0.76     0.01                             cudart::clearThreadState()
+  1.19      0.77     0.01                             cudart::threadLaunchState::pushConfig(dim3, dim3, unsigned long, CUstream_st*)
+  1.19      0.78     0.01                             cudart::cuosTryEnterCriticalSection(pthread_mutex_t*)
+  1.19      0.79     0.01                             cudart::cuosCondCreateWithSharedFlag(pthread_cond_t*, int)
+  1.19      0.80     0.01                             cudaLaunch
+  1.19      0.81     0.01                             cudaMemset2D
+  0.60      0.82     0.01                             global constructors keyed to cudart::threadState::threadState(cudaError*)
+  0.60      0.82     0.01                             cudart::threadLaunchState::~threadLaunchState()
+  0.60      0.83     0.01                             cudart::getLazyInitContextState(cudart::contextState**)
+  0.60      0.83     0.01                             cudart::cudaApiThreadSynchronize()
+  0.60      0.84     0.01                             cudart::device::resetPrimaryContext()
+  0.60      0.84     0.01                             cudart::threadLaunchState::addArgumentToTopConfig(void const*, unsigned long, unsigned long) const
+  0.00      0.84     0.00  2240921     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00   195895     0.00     0.00  cuda_malloc_free(void*)
+  0.00      0.84     0.00   195895     0.00     0.00  cuda_malloc_clear(void**, unsigned long)
+  0.00      0.84     0.00    44846     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00    37169     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00    33633     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00    22425     0.00     0.00  cudaError cudaMalloc<unsigned int>(unsigned int**, unsigned long)
+  0.00      0.84     0.00    22425     0.00     0.00  nextPow2(unsigned int)
+  0.00      0.84     0.00    22425     0.00     0.00  CudaBigInt::CudaBigInt(unsigned int)
+  0.00      0.84     0.00    22425     0.00     0.00  CudaBigInt::~CudaBigInt()
+  0.00      0.84     0.00    12980     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00    12979     0.00     0.00  __device_stub__Z7bit_setPKjiPb(unsigned int const*, int, bool*)
+  0.00      0.84     0.00    12979     0.00     0.00  bit_set(unsigned int const*, int, bool*)
+  0.00      0.84     0.00    11212     0.00     0.00  eq_word_low(unsigned int const*, unsigned int, bool*)
+  0.00      0.84     0.00    11212     0.00     0.00  eq_word_high(unsigned int const*, unsigned int, bool*)
+  0.00      0.84     0.00    11212     0.00     0.00  __device_stub__Z11eq_word_lowPKjjPb(unsigned int const*, unsigned int, bool*)
+  0.00      0.84     0.00    11212     0.00     0.00  __device_stub__Z12eq_word_highPKjjPb(unsigned int const*, unsigned int, bool*)
+  0.00      0.84     0.00    11212     0.00     0.00  equalu(CudaBigInt&, unsigned int)
+  0.00      0.84     0.00    11211     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00    11211     0.00     0.00  fft_square(CudaBigInt&, CudaBigInt&)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_shiftr(unsigned int const*, unsigned int, unsigned int*, unsigned int)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_mers_and(unsigned int const*, unsigned int, unsigned int*)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_combinecu(double2*, unsigned int*, unsigned long long*)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_long_carry(unsigned int*, unsigned long long const*, unsigned char*, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  greater_or_equal(CudaBigInt&, unsigned int)
+  0.00      0.84     0.00    11211     0.00     0.00  pointwise_squarecu(double2*)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_negative_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z7ge_wordPKjjPb(unsigned int const*, unsigned int, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z7cuda_eqPKjS0_Pb(unsigned int const*, unsigned int const*, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z8cuda_subPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z11cuda_shiftrPKjjPjj(unsigned int const*, unsigned int, unsigned int*, unsigned int)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z7splitcuPKjP7double2(unsigned int const*, double2*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z8cuda_addPKjS0_PjPhi(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z13cuda_mers_andPKjjPj(unsigned int const*, unsigned int, unsigned int*)
+  0.00      0.84     0.00    11211     0.00     0.01  mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z15cuda_long_carryPjPKyPhPb(unsigned int*, unsigned long long const*, unsigned char*, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z14cuda_combinecuP7double2PjPy(double2*, unsigned int*, unsigned long long*)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z18pointwise_squarecuP7double2(double2*)
+  0.00      0.84     0.00    11211     0.00     0.00  subu(CudaBigInt&, unsigned int, CudaBigInt&)
+  0.00      0.84     0.00    11211     0.00     0.00  __device_stub__Z24cuda_negative_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  equal(CudaBigInt&, CudaBigInt&)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_eq(unsigned int const*, unsigned int const*, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  ge_word(unsigned int const*, unsigned int, bool*)
+  0.00      0.84     0.00    11211     0.00     0.00  splitcu(unsigned int const*, double2*)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_add(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int)
+  0.00      0.84     0.00    11211     0.00     0.00  cuda_sub(unsigned int const*, unsigned int, unsigned int*, unsigned char*)
+  0.00      0.84     0.00    11211     0.00     0.00  combinecu(double2*, CudaBigInt&)
+  0.00      0.84     0.00     1769     0.00     0.00  __device_stub__Z8cuda_addPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*)
+  0.00      0.84     0.00     1769     0.00     0.00  addu(CudaBigInt&, unsigned int, CudaBigInt&)
+  0.00      0.84     0.00     1769     0.00     0.00  cuda_add(unsigned int const*, unsigned int, unsigned int*, unsigned char*)
+  0.00      0.84     0.00     1768     0.00     0.00  __device_stub__Z9clear_bitPji(unsigned int*, int)
+  0.00      0.84     0.00     1768     0.00     0.00  clear_bit(unsigned int*, int)
+  0.00      0.84     0.00        1     0.00     0.00  cudaError cudaLaunch<char>(char*)
+  0.00      0.84     0.00        1     0.00   100.00  isMersPrime(unsigned int)
+  0.00      0.84     0.00        1     0.00     0.00  __device_stub__Z9cuda_mersjPj(unsigned int, unsigned int*)
+  0.00      0.84     0.00        1     0.00     0.00  mers(unsigned int, CudaBigInt&)
+  0.00      0.84     0.00        1     0.00     0.00  cuda_mers(unsigned int, unsigned int*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  ____nv_dummy_param_ref(void*)
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __sti____cudaRegisterAll()
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_cudaEntityRegisterCallback(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+  0.00      0.84     0.00        1     0.00     0.00  __nv_save_fatbinhandle_for_managed_rt(void**)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 1.19% of 0.84 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     11.9    0.00    0.10                 main [1]
+                0.00    0.10       1/1           isMersPrime(unsigned int) [2]
+-----------------------------------------------
+                0.00    0.10       1/1           main [1]
+[2]     11.9    0.00    0.10       1         isMersPrime(unsigned int) [2]
+                0.00    0.10   11211/11211       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+                0.00    0.00   11211/11211       fft_square(CudaBigInt&, CudaBigInt&) [39]
+                0.00    0.00   11211/11211       subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+                0.00    0.00   11211/11211       greater_or_equal(CudaBigInt&, unsigned int) [43]
+                0.00    0.00       1/1769        addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00       1/11212       equalu(CudaBigInt&, unsigned int) [42]
+                0.00    0.00       1/1           mers(unsigned int, CudaBigInt&) [46]
+                0.00    0.00       3/22425       CudaBigInt::CudaBigInt(unsigned int) [285]
+                0.00    0.00       3/22425       CudaBigInt::~CudaBigInt() [286]
+-----------------------------------------------
+                0.00    0.10   11211/11211       isMersPrime(unsigned int) [2]
+[3]     11.8    0.00    0.10   11211         mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+                0.05    0.05   11211/11211       add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+                0.00    0.00   74338/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   11211/11211       equal(CudaBigInt&, CudaBigInt&) [44]
+                0.00    0.00    1768/1769        addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00   33633/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   33633/195895      cuda_malloc_free(void*) [278]
+                0.00    0.00   22422/22425       CudaBigInt::CudaBigInt(unsigned int) [285]
+                0.00    0.00   22422/22425       CudaBigInt::~CudaBigInt() [286]
+                0.00    0.00   12979/12979       bit_set(unsigned int const*, int, bool*) [289]
+                0.00    0.00   11211/11211       cuda_mers_and(unsigned int const*, unsigned int, unsigned int*) [296]
+                0.00    0.00   11211/11211       cuda_shiftr(unsigned int const*, unsigned int, unsigned int*, unsigned int) [295]
+                0.00    0.00    1768/1768        clear_bit(unsigned int*, int) [320]
+-----------------------------------------------
+                0.05    0.05   11211/11211       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[4]     11.8    0.05    0.05   11211         add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+                0.01    0.02 2211564/2218499     cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [11]
+                0.01    0.00 4445550/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   33633/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   33633/195895      cuda_malloc_free(void*) [278]
+                0.00    0.00   11211/11211       cuda_add(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [315]
+-----------------------------------------------
+                                                 <spontaneous>
+[5]      8.3    0.07    0.00                 cudart::contextStateManager::getRuntimeContextState(cudart::contextState**, bool) [5]
+-----------------------------------------------
+                                                 <spontaneous>
+[6]      8.3    0.07    0.00                 cudart::cuosOnce(int*, void (*)()) [6]
+-----------------------------------------------
+                                                 <spontaneous>
+[7]      8.3    0.07    0.00                 cudart::contextState::getEntryFunction(cudart::cudaEntryFunction**, void const*, cudaError) [7]
+-----------------------------------------------
+                                                 <spontaneous>
+[8]      7.1    0.06    0.00                 cudart::globalState::initializeDriver() [8]
+-----------------------------------------------
+                                                 <spontaneous>
+[9]      6.0    0.05    0.00                 cudart::contextState::applyChanges() [9]
+-----------------------------------------------
+                                                 <spontaneous>
+[10]     4.8    0.04    0.00                 cudaSetupArgument [10]
+-----------------------------------------------
+                0.00    0.00    1769/2218499     addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00    5166/2218499     combinecu(double2*, CudaBigInt&) [40]
+                0.01    0.02 2211564/2218499     add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+[11]     4.8    0.02    0.03 2218499         cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [11]
+                0.03    0.00 2218499/2218499     __device_stub__Z15cuda_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [18]
+-----------------------------------------------
+                                                 <spontaneous>
+[12]     4.8    0.04    0.00                 cudart::contextState::prepareToLaunchFunction(CUfunc_st**, cudart::configData const*, void const*) [12]
+-----------------------------------------------
+                                                 <spontaneous>
+[13]     3.6    0.03    0.00                 cudaMemcpy [13]
+-----------------------------------------------
+                                                 <spontaneous>
+[14]     3.6    0.03    0.00                 cudart::configData::addArgument(void const*, unsigned long, unsigned long) [14]
+-----------------------------------------------
+                                                 <spontaneous>
+[15]     3.6    0.03    0.00                 cudart::getCudartError(cudaError_enum) [15]
+-----------------------------------------------
+                                                 <spontaneous>
+[16]     3.6    0.03    0.00                 cudart::cudaApiLaunchCommon(void const*, bool) [16]
+-----------------------------------------------
+                                                 <spontaneous>
+[17]     3.6    0.03    0.00                 cudart::cudaApiConfigureCall(dim3, dim3, unsigned long, CUstream_st*) [17]
+-----------------------------------------------
+                0.03    0.00 2218499/2218499     cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [11]
+[18]     3.0    0.03    0.00 2218499         __device_stub__Z15cuda_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [18]
+                0.00    0.00 2218499/2240921     cudaError cudaLaunch<char>(char*) [277]
+-----------------------------------------------
+                                                 <spontaneous>
+[19]     3.0    0.03    0.00                 cudart::cudaApiSetupArgument(void const*, unsigned long, unsigned long) [19]
+-----------------------------------------------
+                                                 <spontaneous>
+[20]     2.4    0.02    0.00                 cudart::doLazyInitContextState() [20]
+-----------------------------------------------
+                                                 <spontaneous>
+[21]     1.8    0.02    0.00                 cudart::getGlobalState() [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[22]     1.2    0.01    0.00                 cudaLaunch [22]
+-----------------------------------------------
+                                                 <spontaneous>
+[23]     1.2    0.01    0.00                 cudaMemset2D [23]
+-----------------------------------------------
+                0.00    0.00       2/4761522     mers(unsigned int, CudaBigInt&) [46]
+                0.00    0.00    7076/4761522     addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00   22422/4761522     greater_or_equal(CudaBigInt&, unsigned int) [43]
+                0.00    0.00   22422/4761522     equal(CudaBigInt&, CudaBigInt&) [44]
+                0.00    0.00   44844/4761522     fft_square(CudaBigInt&, CudaBigInt&) [39]
+                0.00    0.00   44844/4761522     subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+                0.00    0.00   44848/4761522     equalu(CudaBigInt&, unsigned int) [42]
+                0.00    0.00   55176/4761522     combinecu(double2*, CudaBigInt&) [40]
+                0.00    0.00   74338/4761522     mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+                0.01    0.00 4445550/4761522     add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+[24]     1.2    0.01    0.00 4761522         dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+-----------------------------------------------
+                                                 <spontaneous>
+[25]     1.2    0.01    0.00                 cudart::configData::reset(dim3, dim3, unsigned long, CUstream_st*) [25]
+-----------------------------------------------
+                                                 <spontaneous>
+[26]     1.2    0.01    0.00                 cudart::cudaApiMemset(void*, int, unsigned long) [26]
+-----------------------------------------------
+                                                 <spontaneous>
+[27]     1.2    0.01    0.00                 cudart::getThreadState(cudart::threadState**) [27]
+-----------------------------------------------
+                                                 <spontaneous>
+[28]     1.2    0.01    0.00                 cudart::cuosTlsSetValue(unsigned int, void*) [28]
+-----------------------------------------------
+                                                 <spontaneous>
+[29]     1.2    0.01    0.00                 cudart::clearThreadState() [29]
+-----------------------------------------------
+                                                 <spontaneous>
+[30]     1.2    0.01    0.00                 cudart::threadLaunchState::pushConfig(dim3, dim3, unsigned long, CUstream_st*) [30]
+-----------------------------------------------
+                                                 <spontaneous>
+[31]     1.2    0.01    0.00                 cudart::cuosTryEnterCriticalSection(pthread_mutex_t*) [31]
+-----------------------------------------------
+                                                 <spontaneous>
+[32]     1.2    0.01    0.00                 cudart::cuosCondCreateWithSharedFlag(pthread_cond_t*, int) [32]
+-----------------------------------------------
+                                                 <spontaneous>
+[33]     0.6    0.01    0.00                 global constructors keyed to cudart::threadState::threadState(cudaError*) [33]
+-----------------------------------------------
+                                                 <spontaneous>
+[34]     0.6    0.01    0.00                 cudart::threadLaunchState::~threadLaunchState() [34]
+-----------------------------------------------
+                                                 <spontaneous>
+[35]     0.6    0.01    0.00                 cudart::getLazyInitContextState(cudart::contextState**) [35]
+-----------------------------------------------
+                                                 <spontaneous>
+[36]     0.6    0.01    0.00                 cudart::cudaApiThreadSynchronize() [36]
+-----------------------------------------------
+                                                 <spontaneous>
+[37]     0.6    0.01    0.00                 cudart::device::resetPrimaryContext() [37]
+-----------------------------------------------
+                                                 <spontaneous>
+[38]     0.6    0.01    0.00                 cudart::threadLaunchState::addArgumentToTopConfig(void const*, unsigned long, unsigned long) const [38]
+-----------------------------------------------
+                0.00    0.00   11211/11211       isMersPrime(unsigned int) [2]
+[39]     0.0    0.00    0.00   11211         fft_square(CudaBigInt&, CudaBigInt&) [39]
+                0.00    0.00   11211/11211       combinecu(double2*, CudaBigInt&) [40]
+                0.00    0.00   44844/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   11211/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   11211/11211       splitcu(unsigned int const*, double2*) [314]
+                0.00    0.00   11211/11211       pointwise_squarecu(double2*) [299]
+                0.00    0.00   11211/195895      cuda_malloc_free(void*) [278]
+-----------------------------------------------
+                0.00    0.00   11211/11211       fft_square(CudaBigInt&, CudaBigInt&) [39]
+[40]     0.0    0.00    0.00   11211         combinecu(double2*, CudaBigInt&) [40]
+                0.00    0.00   55176/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00    5166/2218499     cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [11]
+                0.00    0.00   44844/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   44844/195895      cuda_malloc_free(void*) [278]
+                0.00    0.00   11211/11211       cuda_combinecu(double2*, unsigned int*, unsigned long long*) [297]
+                0.00    0.00   11211/11211       cuda_long_carry(unsigned int*, unsigned long long const*, unsigned char*, bool*) [298]
+-----------------------------------------------
+                0.00    0.00   11211/11211       isMersPrime(unsigned int) [2]
+[41]     0.0    0.00    0.00   11211         subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+                0.00    0.00   44844/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   11211/11212       equalu(CudaBigInt&, unsigned int) [42]
+                0.00    0.00   33633/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   33633/195895      cuda_malloc_free(void*) [278]
+                0.00    0.00   11211/11211       cuda_sub(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [316]
+                0.00    0.00   11211/11211       cuda_negative_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [300]
+-----------------------------------------------
+                0.00    0.00       1/11212       isMersPrime(unsigned int) [2]
+                0.00    0.00   11211/11212       subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+[42]     0.0    0.00    0.00   11212         equalu(CudaBigInt&, unsigned int) [42]
+                0.00    0.00   44848/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   11212/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   11212/11212       eq_word_low(unsigned int const*, unsigned int, bool*) [290]
+                0.00    0.00   11212/11212       eq_word_high(unsigned int const*, unsigned int, bool*) [291]
+                0.00    0.00   11212/195895      cuda_malloc_free(void*) [278]
+-----------------------------------------------
+                0.00    0.00   11211/11211       isMersPrime(unsigned int) [2]
+[43]     0.0    0.00    0.00   11211         greater_or_equal(CudaBigInt&, unsigned int) [43]
+                0.00    0.00   22422/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   11211/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   11211/11211       ge_word(unsigned int const*, unsigned int, bool*) [313]
+                0.00    0.00   11211/195895      cuda_malloc_free(void*) [278]
+-----------------------------------------------
+                0.00    0.00   11211/11211       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[44]     0.0    0.00    0.00   11211         equal(CudaBigInt&, CudaBigInt&) [44]
+                0.00    0.00   22422/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00   11211/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00   11211/11211       cuda_eq(unsigned int const*, unsigned int const*, bool*) [312]
+                0.00    0.00   11211/195895      cuda_malloc_free(void*) [278]
+-----------------------------------------------
+                0.00    0.00       1/1769        isMersPrime(unsigned int) [2]
+                0.00    0.00    1768/1769        mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[45]     0.0    0.00    0.00    1769         addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00    1769/2218499     cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [11]
+                0.00    0.00    7076/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00    5307/195895      cuda_malloc_clear(void**, unsigned long) [279]
+                0.00    0.00    5307/195895      cuda_malloc_free(void*) [278]
+                0.00    0.00    1769/1769        cuda_add(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [318]
+-----------------------------------------------
+                0.00    0.00       1/1           isMersPrime(unsigned int) [2]
+[46]     0.0    0.00    0.00       1         mers(unsigned int, CudaBigInt&) [46]
+                0.00    0.00       2/4761522     dim3::dim3(unsigned int, unsigned int, unsigned int) [24]
+                0.00    0.00       1/1           cuda_mers(unsigned int, unsigned int*) [323]
+-----------------------------------------------
+                0.00    0.00   11211/2240921     __device_stub__Z15cuda_long_carryPjPKyPhPb(unsigned int*, unsigned long long const*, unsigned char*, bool*) [308]
+                0.00    0.00   11211/2240921     __device_stub__Z24cuda_negative_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [311]
+                0.00    0.00 2218499/2240921     __device_stub__Z15cuda_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [18]
+[277]    0.0    0.00    0.00 2240921         cudaError cudaLaunch<char>(char*) [277]
+-----------------------------------------------
+                0.00    0.00    5307/195895      addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00   11211/195895      greater_or_equal(CudaBigInt&, unsigned int) [43]
+                0.00    0.00   11211/195895      equal(CudaBigInt&, CudaBigInt&) [44]
+                0.00    0.00   11211/195895      fft_square(CudaBigInt&, CudaBigInt&) [39]
+                0.00    0.00   11212/195895      equalu(CudaBigInt&, unsigned int) [42]
+                0.00    0.00   33633/195895      add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+                0.00    0.00   33633/195895      mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+                0.00    0.00   33633/195895      subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+                0.00    0.00   44844/195895      combinecu(double2*, CudaBigInt&) [40]
+[278]    0.0    0.00    0.00  195895         cuda_malloc_free(void*) [278]
+-----------------------------------------------
+                0.00    0.00    5307/195895      addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+                0.00    0.00   11211/195895      greater_or_equal(CudaBigInt&, unsigned int) [43]
+                0.00    0.00   11211/195895      equal(CudaBigInt&, CudaBigInt&) [44]
+                0.00    0.00   11211/195895      fft_square(CudaBigInt&, CudaBigInt&) [39]
+                0.00    0.00   11212/195895      equalu(CudaBigInt&, unsigned int) [42]
+                0.00    0.00   33633/195895      add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+                0.00    0.00   33633/195895      mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+                0.00    0.00   33633/195895      subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+                0.00    0.00   44844/195895      combinecu(double2*, CudaBigInt&) [40]
+[279]    0.0    0.00    0.00  195895         cuda_malloc_clear(void**, unsigned long) [279]
+-----------------------------------------------
+                0.00    0.00   11211/44846       __device_stub__Z7ge_wordPKjjPb(unsigned int const*, unsigned int, bool*) [301]
+                0.00    0.00   11211/44846       __device_stub__Z7cuda_eqPKjS0_Pb(unsigned int const*, unsigned int const*, bool*) [302]
+                0.00    0.00   11212/44846       __device_stub__Z11eq_word_lowPKjjPb(unsigned int const*, unsigned int, bool*) [292]
+                0.00    0.00   11212/44846       __device_stub__Z12eq_word_highPKjjPb(unsigned int const*, unsigned int, bool*) [293]
+[280]    0.0    0.00    0.00   44846         cudaError cudaLaunch<char>(char*) [280]
+-----------------------------------------------
+                0.00    0.00    1768/37169       __device_stub__Z9clear_bitPji(unsigned int*, int) [319]
+                0.00    0.00   11211/37169       __device_stub__Z11cuda_shiftrPKjjPjj(unsigned int const*, unsigned int, unsigned int*, unsigned int) [304]
+                0.00    0.00   11211/37169       __device_stub__Z13cuda_mers_andPKjjPj(unsigned int const*, unsigned int, unsigned int*) [307]
+                0.00    0.00   12979/37169       __device_stub__Z7bit_setPKjiPb(unsigned int const*, int, bool*) [288]
+[281]    0.0    0.00    0.00   37169         cudaError cudaLaunch<char>(char*) [281]
+-----------------------------------------------
+                0.00    0.00   11211/33633       __device_stub__Z7splitcuPKjP7double2(unsigned int const*, double2*) [305]
+                0.00    0.00   11211/33633       __device_stub__Z18pointwise_squarecuP7double2(double2*) [310]
+                0.00    0.00   11211/33633       __device_stub__Z14cuda_combinecuP7double2PjPy(double2*, unsigned int*, unsigned long long*) [309]
+[282]    0.0    0.00    0.00   33633         cudaError cudaLaunch<char>(char*) [282]
+-----------------------------------------------
+                0.00    0.00   22425/22425       CudaBigInt::CudaBigInt(unsigned int) [285]
+[283]    0.0    0.00    0.00   22425         cudaError cudaMalloc<unsigned int>(unsigned int**, unsigned long) [283]
+-----------------------------------------------
+                0.00    0.00   22425/22425       CudaBigInt::CudaBigInt(unsigned int) [285]
+[284]    0.0    0.00    0.00   22425         nextPow2(unsigned int) [284]
+-----------------------------------------------
+                0.00    0.00       3/22425       isMersPrime(unsigned int) [2]
+                0.00    0.00   22422/22425       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[285]    0.0    0.00    0.00   22425         CudaBigInt::CudaBigInt(unsigned int) [285]
+                0.00    0.00   22425/22425       nextPow2(unsigned int) [284]
+                0.00    0.00   22425/22425       cudaError cudaMalloc<unsigned int>(unsigned int**, unsigned long) [283]
+-----------------------------------------------
+                0.00    0.00       3/22425       isMersPrime(unsigned int) [2]
+                0.00    0.00   22422/22425       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[286]    0.0    0.00    0.00   22425         CudaBigInt::~CudaBigInt() [286]
+-----------------------------------------------
+                0.00    0.00    1769/12980       __device_stub__Z8cuda_addPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [317]
+                0.00    0.00   11211/12980       __device_stub__Z8cuda_addPKjS0_PjPhi(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [306]
+[287]    0.0    0.00    0.00   12980         cudaError cudaLaunch<char>(char*) [287]
+-----------------------------------------------
+                0.00    0.00   12979/12979       bit_set(unsigned int const*, int, bool*) [289]
+[288]    0.0    0.00    0.00   12979         __device_stub__Z7bit_setPKjiPb(unsigned int const*, int, bool*) [288]
+                0.00    0.00   12979/37169       cudaError cudaLaunch<char>(char*) [281]
+-----------------------------------------------
+                0.00    0.00   12979/12979       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[289]    0.0    0.00    0.00   12979         bit_set(unsigned int const*, int, bool*) [289]
+                0.00    0.00   12979/12979       __device_stub__Z7bit_setPKjiPb(unsigned int const*, int, bool*) [288]
+-----------------------------------------------
+                0.00    0.00   11212/11212       equalu(CudaBigInt&, unsigned int) [42]
+[290]    0.0    0.00    0.00   11212         eq_word_low(unsigned int const*, unsigned int, bool*) [290]
+                0.00    0.00   11212/11212       __device_stub__Z11eq_word_lowPKjjPb(unsigned int const*, unsigned int, bool*) [292]
+-----------------------------------------------
+                0.00    0.00   11212/11212       equalu(CudaBigInt&, unsigned int) [42]
+[291]    0.0    0.00    0.00   11212         eq_word_high(unsigned int const*, unsigned int, bool*) [291]
+                0.00    0.00   11212/11212       __device_stub__Z12eq_word_highPKjjPb(unsigned int const*, unsigned int, bool*) [293]
+-----------------------------------------------
+                0.00    0.00   11212/11212       eq_word_low(unsigned int const*, unsigned int, bool*) [290]
+[292]    0.0    0.00    0.00   11212         __device_stub__Z11eq_word_lowPKjjPb(unsigned int const*, unsigned int, bool*) [292]
+                0.00    0.00   11212/44846       cudaError cudaLaunch<char>(char*) [280]
+-----------------------------------------------
+                0.00    0.00   11212/11212       eq_word_high(unsigned int const*, unsigned int, bool*) [291]
+[293]    0.0    0.00    0.00   11212         __device_stub__Z12eq_word_highPKjjPb(unsigned int const*, unsigned int, bool*) [293]
+                0.00    0.00   11212/44846       cudaError cudaLaunch<char>(char*) [280]
+-----------------------------------------------
+                0.00    0.00   11211/11211       __device_stub__Z8cuda_subPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [303]
+[294]    0.0    0.00    0.00   11211         cudaError cudaLaunch<char>(char*) [294]
+-----------------------------------------------
+                0.00    0.00   11211/11211       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[295]    0.0    0.00    0.00   11211         cuda_shiftr(unsigned int const*, unsigned int, unsigned int*, unsigned int) [295]
+                0.00    0.00   11211/11211       __device_stub__Z11cuda_shiftrPKjjPjj(unsigned int const*, unsigned int, unsigned int*, unsigned int) [304]
+-----------------------------------------------
+                0.00    0.00   11211/11211       mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[296]    0.0    0.00    0.00   11211         cuda_mers_and(unsigned int const*, unsigned int, unsigned int*) [296]
+                0.00    0.00   11211/11211       __device_stub__Z13cuda_mers_andPKjjPj(unsigned int const*, unsigned int, unsigned int*) [307]
+-----------------------------------------------
+                0.00    0.00   11211/11211       combinecu(double2*, CudaBigInt&) [40]
+[297]    0.0    0.00    0.00   11211         cuda_combinecu(double2*, unsigned int*, unsigned long long*) [297]
+                0.00    0.00   11211/11211       __device_stub__Z14cuda_combinecuP7double2PjPy(double2*, unsigned int*, unsigned long long*) [309]
+-----------------------------------------------
+                0.00    0.00   11211/11211       combinecu(double2*, CudaBigInt&) [40]
+[298]    0.0    0.00    0.00   11211         cuda_long_carry(unsigned int*, unsigned long long const*, unsigned char*, bool*) [298]
+                0.00    0.00   11211/11211       __device_stub__Z15cuda_long_carryPjPKyPhPb(unsigned int*, unsigned long long const*, unsigned char*, bool*) [308]
+-----------------------------------------------
+                0.00    0.00   11211/11211       fft_square(CudaBigInt&, CudaBigInt&) [39]
+[299]    0.0    0.00    0.00   11211         pointwise_squarecu(double2*) [299]
+                0.00    0.00   11211/11211       __device_stub__Z18pointwise_squarecuP7double2(double2*) [310]
+-----------------------------------------------
+                0.00    0.00   11211/11211       subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+[300]    0.0    0.00    0.00   11211         cuda_negative_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [300]
+                0.00    0.00   11211/11211       __device_stub__Z24cuda_negative_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [311]
+-----------------------------------------------
+                0.00    0.00   11211/11211       ge_word(unsigned int const*, unsigned int, bool*) [313]
+[301]    0.0    0.00    0.00   11211         __device_stub__Z7ge_wordPKjjPb(unsigned int const*, unsigned int, bool*) [301]
+                0.00    0.00   11211/44846       cudaError cudaLaunch<char>(char*) [280]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_eq(unsigned int const*, unsigned int const*, bool*) [312]
+[302]    0.0    0.00    0.00   11211         __device_stub__Z7cuda_eqPKjS0_Pb(unsigned int const*, unsigned int const*, bool*) [302]
+                0.00    0.00   11211/44846       cudaError cudaLaunch<char>(char*) [280]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_sub(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [316]
+[303]    0.0    0.00    0.00   11211         __device_stub__Z8cuda_subPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [303]
+                0.00    0.00   11211/11211       cudaError cudaLaunch<char>(char*) [294]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_shiftr(unsigned int const*, unsigned int, unsigned int*, unsigned int) [295]
+[304]    0.0    0.00    0.00   11211         __device_stub__Z11cuda_shiftrPKjjPjj(unsigned int const*, unsigned int, unsigned int*, unsigned int) [304]
+                0.00    0.00   11211/37169       cudaError cudaLaunch<char>(char*) [281]
+-----------------------------------------------
+                0.00    0.00   11211/11211       splitcu(unsigned int const*, double2*) [314]
+[305]    0.0    0.00    0.00   11211         __device_stub__Z7splitcuPKjP7double2(unsigned int const*, double2*) [305]
+                0.00    0.00   11211/33633       cudaError cudaLaunch<char>(char*) [282]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_add(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [315]
+[306]    0.0    0.00    0.00   11211         __device_stub__Z8cuda_addPKjS0_PjPhi(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [306]
+                0.00    0.00   11211/12980       cudaError cudaLaunch<char>(char*) [287]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_mers_and(unsigned int const*, unsigned int, unsigned int*) [296]
+[307]    0.0    0.00    0.00   11211         __device_stub__Z13cuda_mers_andPKjjPj(unsigned int const*, unsigned int, unsigned int*) [307]
+                0.00    0.00   11211/37169       cudaError cudaLaunch<char>(char*) [281]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_long_carry(unsigned int*, unsigned long long const*, unsigned char*, bool*) [298]
+[308]    0.0    0.00    0.00   11211         __device_stub__Z15cuda_long_carryPjPKyPhPb(unsigned int*, unsigned long long const*, unsigned char*, bool*) [308]
+                0.00    0.00   11211/2240921     cudaError cudaLaunch<char>(char*) [277]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_combinecu(double2*, unsigned int*, unsigned long long*) [297]
+[309]    0.0    0.00    0.00   11211         __device_stub__Z14cuda_combinecuP7double2PjPy(double2*, unsigned int*, unsigned long long*) [309]
+                0.00    0.00   11211/33633       cudaError cudaLaunch<char>(char*) [282]
+-----------------------------------------------
+                0.00    0.00   11211/11211       pointwise_squarecu(double2*) [299]
+[310]    0.0    0.00    0.00   11211         __device_stub__Z18pointwise_squarecuP7double2(double2*) [310]
+                0.00    0.00   11211/33633       cudaError cudaLaunch<char>(char*) [282]
+-----------------------------------------------
+                0.00    0.00   11211/11211       cuda_negative_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [300]
+[311]    0.0    0.00    0.00   11211         __device_stub__Z24cuda_negative_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [311]
+                0.00    0.00   11211/2240921     cudaError cudaLaunch<char>(char*) [277]
+-----------------------------------------------
+                0.00    0.00   11211/11211       equal(CudaBigInt&, CudaBigInt&) [44]
+[312]    0.0    0.00    0.00   11211         cuda_eq(unsigned int const*, unsigned int const*, bool*) [312]
+                0.00    0.00   11211/11211       __device_stub__Z7cuda_eqPKjS0_Pb(unsigned int const*, unsigned int const*, bool*) [302]
+-----------------------------------------------
+                0.00    0.00   11211/11211       greater_or_equal(CudaBigInt&, unsigned int) [43]
+[313]    0.0    0.00    0.00   11211         ge_word(unsigned int const*, unsigned int, bool*) [313]
+                0.00    0.00   11211/11211       __device_stub__Z7ge_wordPKjjPb(unsigned int const*, unsigned int, bool*) [301]
+-----------------------------------------------
+                0.00    0.00   11211/11211       fft_square(CudaBigInt&, CudaBigInt&) [39]
+[314]    0.0    0.00    0.00   11211         splitcu(unsigned int const*, double2*) [314]
+                0.00    0.00   11211/11211       __device_stub__Z7splitcuPKjP7double2(unsigned int const*, double2*) [305]
+-----------------------------------------------
+                0.00    0.00   11211/11211       add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [4]
+[315]    0.0    0.00    0.00   11211         cuda_add(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [315]
+                0.00    0.00   11211/11211       __device_stub__Z8cuda_addPKjS0_PjPhi(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [306]
+-----------------------------------------------
+                0.00    0.00   11211/11211       subu(CudaBigInt&, unsigned int, CudaBigInt&) [41]
+[316]    0.0    0.00    0.00   11211         cuda_sub(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [316]
+                0.00    0.00   11211/11211       __device_stub__Z8cuda_subPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [303]
+-----------------------------------------------
+                0.00    0.00    1769/1769        cuda_add(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [318]
+[317]    0.0    0.00    0.00    1769         __device_stub__Z8cuda_addPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [317]
+                0.00    0.00    1769/12980       cudaError cudaLaunch<char>(char*) [287]
+-----------------------------------------------
+                0.00    0.00    1769/1769        addu(CudaBigInt&, unsigned int, CudaBigInt&) [45]
+[318]    0.0    0.00    0.00    1769         cuda_add(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [318]
+                0.00    0.00    1769/1769        __device_stub__Z8cuda_addPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [317]
+-----------------------------------------------
+                0.00    0.00    1768/1768        clear_bit(unsigned int*, int) [320]
+[319]    0.0    0.00    0.00    1768         __device_stub__Z9clear_bitPji(unsigned int*, int) [319]
+                0.00    0.00    1768/37169       cudaError cudaLaunch<char>(char*) [281]
+-----------------------------------------------
+                0.00    0.00    1768/1768        mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [3]
+[320]    0.0    0.00    0.00    1768         clear_bit(unsigned int*, int) [320]
+                0.00    0.00    1768/1768        __device_stub__Z9clear_bitPji(unsigned int*, int) [319]
+-----------------------------------------------
+                0.00    0.00       1/1           __device_stub__Z9cuda_mersjPj(unsigned int, unsigned int*) [322]
+[321]    0.0    0.00    0.00       1         cudaError cudaLaunch<char>(char*) [321]
+-----------------------------------------------
+                0.00    0.00       1/1           cuda_mers(unsigned int, unsigned int*) [323]
+[322]    0.0    0.00    0.00       1         __device_stub__Z9cuda_mersjPj(unsigned int, unsigned int*) [322]
+                0.00    0.00       1/1           cudaError cudaLaunch<char>(char*) [321]
+-----------------------------------------------
+                0.00    0.00       1/1           mers(unsigned int, CudaBigInt&) [46]
+[323]    0.0    0.00    0.00       1         cuda_mers(unsigned int, unsigned int*) [323]
+                0.00    0.00       1/1           __device_stub__Z9cuda_mersjPj(unsigned int, unsigned int*) [322]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [436]
+[324]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [324]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [437]
+[325]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [325]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [438]
+[326]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [326]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [439]
+[327]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [327]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [440]
+[328]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [328]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [441]
+[329]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [329]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [442]
+[330]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [330]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [443]
+[331]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [331]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [444]
+[332]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [332]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [445]
+[333]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [333]
+-----------------------------------------------
+                0.00    0.00       1/1           __cudaUnregisterBinaryUtil() [446]
+[334]    0.0    0.00    0.00       1         ____nv_dummy_param_ref(void*) [334]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[335]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [335]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [346]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[336]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [336]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [347]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[337]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [337]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [348]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[338]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [338]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [349]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[339]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [339]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [350]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[340]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [340]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [351]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[341]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [341]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [352]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[342]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [342]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [353]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[343]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [343]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [354]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[344]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [344]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [355]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [1341]
+[345]    0.0    0.00    0.00       1         __sti____cudaRegisterAll() [345]
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [356]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [335]
+[346]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [346]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [357]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [336]
+[347]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [347]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [358]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [337]
+[348]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [348]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [359]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [338]
+[349]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [349]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [360]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [339]
+[350]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [350]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [361]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [340]
+[351]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [351]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [362]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [341]
+[352]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [352]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [363]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [342]
+[353]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [353]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [364]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [343]
+[354]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [354]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [365]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [344]
+[355]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [355]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [366]
+-----------------------------------------------
+                0.00    0.00       1/1           __sti____cudaRegisterAll() [345]
+[356]    0.0    0.00    0.00       1         __nv_cudaEntityRegisterCallback(void**) [356]
+                0.00    0.00       1/1           __nv_save_fatbinhandle_for_managed_rt(void**) [367]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [346]
+[357]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [357]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [347]
+[358]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [358]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [348]
+[359]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [359]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [349]
+[360]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [360]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [350]
+[361]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [361]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [351]
+[362]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [362]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [352]
+[363]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [363]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [353]
+[364]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [364]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [354]
+[365]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [365]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [355]
+[366]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [366]
+-----------------------------------------------
+                0.00    0.00       1/1           __nv_cudaEntityRegisterCallback(void**) [356]
+[367]    0.0    0.00    0.00       1         __nv_save_fatbinhandle_for_managed_rt(void**) [367]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [33] global constructors keyed to cudart::threadState::threadState(cudaError*) [44] equal(CudaBigInt&, CudaBigInt&) [358] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [287] cudaError cudaLaunch<char>(char*) [42] equalu(CudaBigInt&, unsigned int) [359] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [277] cudaError cudaLaunch<char>(char*) [289] bit_set(unsigned int const*, int, bool*) [360] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [280] cudaError cudaLaunch<char>(char*) [312] cuda_eq(unsigned int const*, unsigned int const*, bool*) [361] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [282] cudaError cudaLaunch<char>(char*) [313] ge_word(unsigned int const*, unsigned int, bool*) [362] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [321] cudaError cudaLaunch<char>(char*) [314] splitcu(unsigned int const*, double2*) [363] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [281] cudaError cudaLaunch<char>(char*) [315] cuda_add(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [364] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [294] cudaError cudaLaunch<char>(char*) [318] cuda_add(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [365] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [283] cudaError cudaMalloc<unsigned int>(unsigned int**, unsigned long) [316] cuda_sub(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [366] __nv_save_fatbinhandle_for_managed_rt(void**)
+  [39] fft_square(CudaBigInt&, CudaBigInt&) [320] clear_bit(unsigned int*, int) [367] __nv_save_fatbinhandle_for_managed_rt(void**)
+ [295] cuda_shiftr(unsigned int const*, unsigned int, unsigned int*, unsigned int) [40] combinecu(double2*, CudaBigInt&) [284] nextPow2(unsigned int)
+ [290] eq_word_low(unsigned int const*, unsigned int, bool*) [323] cuda_mers(unsigned int, unsigned int*) [285] CudaBigInt::CudaBigInt(unsigned int)
+   [2] isMersPrime(unsigned int) [324] ____nv_dummy_param_ref(void*) [286] CudaBigInt::~CudaBigInt()
+ [291] eq_word_high(unsigned int const*, unsigned int, bool*) [325] ____nv_dummy_param_ref(void*) [24] dim3::dim3(unsigned int, unsigned int, unsigned int)
+ [296] cuda_mers_and(unsigned int const*, unsigned int, unsigned int*) [326] ____nv_dummy_param_ref(void*) [14] cudart::configData::addArgument(void const*, unsigned long, unsigned long)
+ [297] cuda_combinecu(double2*, unsigned int*, unsigned long long*) [327] ____nv_dummy_param_ref(void*) [25] cudart::configData::reset(dim3, dim3, unsigned long, CUstream_st*)
+  [11] cuda_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [328] ____nv_dummy_param_ref(void*) [8] cudart::globalState::initializeDriver()
+ [298] cuda_long_carry(unsigned int*, unsigned long long const*, unsigned char*, bool*) [329] ____nv_dummy_param_ref(void*) [9] cudart::contextState::applyChanges()
+ [278] cuda_malloc_free(void*) [330] ____nv_dummy_param_ref(void*) [7] cudart::contextState::getEntryFunction(cudart::cudaEntryFunction**, void const*, cudaError)
+  [43] greater_or_equal(CudaBigInt&, unsigned int) [331] ____nv_dummy_param_ref(void*) [12] cudart::contextState::prepareToLaunchFunction(CUfunc_st**, cudart::configData const*, void const*)
+ [279] cuda_malloc_clear(void**, unsigned long) [332] ____nv_dummy_param_ref(void*) [26] cudart::cudaApiMemset(void*, int, unsigned long)
+ [299] pointwise_squarecu(double2*) [333] ____nv_dummy_param_ref(void*) [15] cudart::getCudartError(cudaError_enum)
+ [300] cuda_negative_byte_carry(unsigned int*, unsigned char const*, unsigned char*, bool*) [334] ____nv_dummy_param_ref(void*) [21] cudart::getGlobalState()
+ [319] __device_stub__Z9clear_bitPji(unsigned int*, int) [335] __sti____cudaRegisterAll() [27] cudart::getThreadState(cudart::threadState**)
+ [322] __device_stub__Z9cuda_mersjPj(unsigned int, unsigned int*) [336] __sti____cudaRegisterAll() [28] cudart::cuosTlsSetValue(unsigned int, void*)
+ [288] __device_stub__Z7bit_setPKjiPb(unsigned int const*, int, bool*) [337] __sti____cudaRegisterAll() [29] cudart::clearThreadState()
+ [301] __device_stub__Z7ge_wordPKjjPb(unsigned int const*, unsigned int, bool*) [338] __sti____cudaRegisterAll() [30] cudart::threadLaunchState::pushConfig(dim3, dim3, unsigned long, CUstream_st*)
+ [302] __device_stub__Z7cuda_eqPKjS0_Pb(unsigned int const*, unsigned int const*, bool*) [339] __sti____cudaRegisterAll() [34] cudart::threadLaunchState::~threadLaunchState()
+ [317] __device_stub__Z8cuda_addPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [340] __sti____cudaRegisterAll() [5] cudart::contextStateManager::getRuntimeContextState(cudart::contextState**, bool)
+ [303] __device_stub__Z8cuda_subPKjjPjPh(unsigned int const*, unsigned int, unsigned int*, unsigned char*) [341] __sti____cudaRegisterAll() [16] cudart::cudaApiLaunchCommon(void const*, bool)
+ [292] __device_stub__Z11eq_word_lowPKjjPb(unsigned int const*, unsigned int, bool*) [342] __sti____cudaRegisterAll() [17] cudart::cudaApiConfigureCall(dim3, dim3, unsigned long, CUstream_st*)
+ [304] __device_stub__Z11cuda_shiftrPKjjPjj(unsigned int const*, unsigned int, unsigned int*, unsigned int) [343] __sti____cudaRegisterAll() [19] cudart::cudaApiSetupArgument(void const*, unsigned long, unsigned long)
+ [293] __device_stub__Z12eq_word_highPKjjPb(unsigned int const*, unsigned int, bool*) [344] __sti____cudaRegisterAll() [20] cudart::doLazyInitContextState()
+ [305] __device_stub__Z7splitcuPKjP7double2(unsigned int const*, double2*) [345] __sti____cudaRegisterAll() [35] cudart::getLazyInitContextState(cudart::contextState**)
+ [306] __device_stub__Z8cuda_addPKjS0_PjPhi(unsigned int const*, unsigned int const*, unsigned int*, unsigned char*, int) [346] __nv_cudaEntityRegisterCallback(void**) [36] cudart::cudaApiThreadSynchronize()
+ [307] __device_stub__Z13cuda_mers_andPKjjPj(unsigned int const*, unsigned int, unsigned int*) [347] __nv_cudaEntityRegisterCallback(void**) [31] cudart::cuosTryEnterCriticalSection(pthread_mutex_t*)
+   [4] add(CudaBigInt&, CudaBigInt&, CudaBigInt&) [348] __nv_cudaEntityRegisterCallback(void**) [32] cudart::cuosCondCreateWithSharedFlag(pthread_cond_t*, int)
+   [3] mod(CudaBigInt&, unsigned int, CudaBigInt&, CudaBigInt&) [349] __nv_cudaEntityRegisterCallback(void**) [37] cudart::device::resetPrimaryContext()
+  [18] __device_stub__Z15cuda_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [350] __nv_cudaEntityRegisterCallback(void**) [6] cudart::cuosOnce(int*, void (*)())
+ [308] __device_stub__Z15cuda_long_carryPjPKyPhPb(unsigned int*, unsigned long long const*, unsigned char*, bool*) [351] __nv_cudaEntityRegisterCallback(void**) [38] cudart::threadLaunchState::addArgumentToTopConfig(void const*, unsigned long, unsigned long) const
+ [309] __device_stub__Z14cuda_combinecuP7double2PjPy(double2*, unsigned int*, unsigned long long*) [352] __nv_cudaEntityRegisterCallback(void**) [22] cudaLaunch
+ [310] __device_stub__Z18pointwise_squarecuP7double2(double2*) [353] __nv_cudaEntityRegisterCallback(void**) [13] cudaMemcpy
+  [45] addu(CudaBigInt&, unsigned int, CudaBigInt&) [354] __nv_cudaEntityRegisterCallback(void**) [23] cudaMemset2D
+  [46] mers(unsigned int, CudaBigInt&) [355] __nv_cudaEntityRegisterCallback(void**) [10] cudaSetupArgument
+  [41] subu(CudaBigInt&, unsigned int, CudaBigInt&) [356] __nv_cudaEntityRegisterCallback(void**)
+ [311] __device_stub__Z24cuda_negative_byte_carryPjPKhPhPb(unsigned int*, unsigned char const*, unsigned char*, bool*) [357] __nv_save_fatbinhandle_for_managed_rt(void**)
