@@ -1,48 +1,53 @@
-lucas_lehmer : main.o add.o carry.o compare.o fft_multiply.o \
+NVCC_CFLAGS = -O3 --compiler-options="$(CFLAGS) -fno-strict-aliasing" -use_fast_math --ptxas-options="-v -dlcm=cg"
+
+lucas_lehmer : main.o add.o carry.o compare.o crt_ntt.o fft_multiply.o \
 				llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o
-	nvcc -lgmp -lcufft -o lucas_lehmer main.o add.o carry.o compare.o \
+	nvcc $(NVCC_CFLAGS) -lgmp -lcufft -o lucas_lehmer main.o add.o carry.o compare.o crt_ntt.o \
 		fft_multiply.o llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o
 
 main.o : main.cu
-	nvcc -c main.cu
+	nvcc $(NVCC_CFLAGS) -c main.cu
 
 add.o : add.cu add.h
-	nvcc -c add.cu
+	nvcc $(NVCC_CFLAGS) -c add.cu
 
 carry.o : carry.cu carry.h
-	nvcc -c carry.cu
+	nvcc $(NVCC_CFLAGS) -c carry.cu
 
 compare.o : compare.cu compare.h
-	nvcc -c compare.cu
+	nvcc $(NVCC_CFLAGS) -c compare.cu
+
+crt_ntt.o : crt_ntt.cu crt_ntt.h
+	nvcc $(NVCC_CFLAGS) -c crt_ntt.cu
 
 fft_multiply.o : fft_multiply.cu fft_multiply.h
-	nvcc -c fft_multiply.cu
+	nvcc $(NVCC_CFLAGS) -c fft_multiply.cu
 
 llntt.o : llntt.cu llntt.h
-	nvcc -c llntt.cu
+	nvcc $(NVCC_CFLAGS) -c llntt.cu
 
 memory.o : memory.cu memory.h
-	nvcc -c memory.cu
+	nvcc $(NVCC_CFLAGS) -c memory.cu
 
 mers.o : mers.cu mers.h
-	nvcc -c mers.cu
+	nvcc $(NVCC_CFLAGS) -c mers.cu
 
 mod.o : mod.cu mod.h
-	nvcc -c mod.cu
+	nvcc $(NVCC_CFLAGS) -c mod.cu
 
 multiply.o : multiply.cu multiply.h
-	nvcc -c multiply.cu
+	nvcc $(NVCC_CFLAGS) -c multiply.cu
 
 rand.o : rand.cu rand.h
-	nvcc -c rand.cu
+	nvcc $(NVCC_CFLAGS) -c rand.cu
 
 subtract.o : subtract.cu subtract.h
-	nvcc -c subtract.cu
+	nvcc $(NVCC_CFLAGS) -c subtract.cu
 
 untt.o : untt.cu untt.h
-	nvcc -c untt.cu
+	nvcc $(NVCC_CFLAGS) -c untt.cu
 
 
 clean :
-	rm lucas_lehmer main.o add.o carry.o compare.o \
+	rm lucas_lehmer main.o add.o carry.o compare.o crt_ntt.o \
 		fft_multiply.o llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o

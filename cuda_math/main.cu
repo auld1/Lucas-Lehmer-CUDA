@@ -16,6 +16,7 @@
 #include "rand.h"
 #include "llntt.h"
 #include "untt.h"
+#include "crt_ntt.h"
 
 unsigned int mers_prime_exps[] = {
     2,
@@ -28,7 +29,7 @@ unsigned int mers_prime_exps[] = {
     31,
     61,
     89,
-    107,
+    107, // 10
     127,
     521,
     607,
@@ -38,7 +39,7 @@ unsigned int mers_prime_exps[] = {
     3217,
     4253,
     4423,
-    9689,
+    9689, // 20
     9941,
     11213,
     19937,
@@ -48,7 +49,7 @@ unsigned int mers_prime_exps[] = {
     86243,
     110503,
     132049,
-    216091,
+    216091, // 30
     756839,
     859433,
     1257787,
@@ -58,7 +59,7 @@ unsigned int mers_prime_exps[] = {
     6972593,
     13466917,
     20996011,
-    24036583,
+    24036583, // 40
     25964951,
     30402457,
     32582657,
@@ -68,7 +69,7 @@ unsigned int mers_prime_exps[] = {
     57885161,
     74207281,
     77232917,
-    82589933
+    82589933 // 50
 };
 
 void
@@ -101,7 +102,7 @@ test(unsigned int size)
     cudaMemcpy(a_host, a.val, a.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
     set_mpz_uint(a_gmp, a_host, a.word_len);
     
-    square(a, c);
+    crt_square(a, c);
     mpz_mul(c_gmp, a_gmp, a_gmp);
     
     cudaMemcpy(c_host, c.val, c.word_len * sizeof(unsigned int), cudaMemcpyDeviceToHost);
@@ -111,8 +112,10 @@ test(unsigned int size)
     
     if (0 != mpz_cmp(c_gmp, ct_gmp))
     {
-        //gmp_printf("%Zd\n\n\n", c_gmp);
-        //gmp_printf("%Zd\n", ct_gmp);
+        gmp_printf("%Zx\n\n\n", c_gmp);
+        gmp_printf("%Zx\n\n\n", ct_gmp);
+        mpz_sub(a_gmp, c_gmp, ct_gmp);
+        gmp_printf("%Zx\n\n\n", a_gmp);
         assert(0);
     }
 
@@ -139,12 +142,13 @@ isMersPrime(unsigned int p)
     
     for (int i = 1; i <= p-2; i++)
     {
-        printf("Iteration %d of %d\n", i, p-2);
+        //printf("Iteration %d of %d\n", i, p-2);
         
         //multiply(a, a, c);
         //fft_square(a, c);
         //ntt_square(a, c);
         square(a,c);
+        //crt_square(a,c);
         
         if (!greater_or_equal(c, 2))
         {
@@ -163,10 +167,14 @@ isMersPrime(unsigned int p)
 int
 main(void)
 {
-    for (int i = 1; i < 51; i++)
-    {
-        assert(isMersPrime(mers_prime_exps[i]));
-    }
+    //for (int i = 1; i < 51; i++)
+    //{
+   //     cudaError_t err;
+     //   err = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+       // assert(err == cudaSuccess);
+        
+        assert(isMersPrime(mers_prime_exps[32]));
+    //}
 /*
     if (isMersPrime(859433))
     {
@@ -174,8 +182,8 @@ main(void)
     } else {
         printf("Problem!\n");
     }
-/*
-    for (int i = 1; i < 28; i++)
+
+    for (int i = 1; i < 26; i++)
     {
         test(1<<i);
         printf("Passed %d\n", i);
