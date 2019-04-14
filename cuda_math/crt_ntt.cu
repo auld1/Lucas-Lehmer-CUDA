@@ -308,8 +308,8 @@ cooley_tukey_complex_fft1(unsigned int* __restrict__ A,
     unsigned int w1 = modpow1(wn1, (unsigned int)j);
     unsigned int t, u;
     
-    t = modmul1(w1, A[k + j + m/2]);
     u = A[k + j];
+    t = modmul1(w1, A[k + j + m/2]);
     
     A[k + j] = (u + t) % NTT_PRIME1;
     A[j + k + m/2] = (u + NTT_PRIME1 - t) % NTT_PRIME1;
@@ -373,7 +373,7 @@ cooley_tukey_complex_ifft2(unsigned int* __restrict__ A,
     k *= m;
     int j = idx % (m/2);
     unsigned int wn2 = inverse_roots2[s];
-    unsigned int w2 = modpow1(wn2, (unsigned int)j);
+    unsigned int w2 = modpow2(wn2, (unsigned int)j);
     unsigned int t, u;
     
     t = modmul2(w2, A[k + j + m/2]);
@@ -569,6 +569,55 @@ cooley_tukey_ifft2(unsigned int* a, int len)
 
 
 void
+cooley_tukey_ffts(unsigned int* a1, unsigned int* a2, int len)
+{
+    assert(isPow2(len));
+    
+    cudaStream_t s1, s2;
+    cudaError_t err;
+    
+    err = cudaStreamCreate(&s1);
+    assert(err == cudaSuccess);
+    cudaStreamCreate(&s2);
+    assert(err == cudaSuccess);
+    
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, log2(len));
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, log2(len));
+
+    
+    for (int s = 1; s <= log2(len); s++)
+    {
+        cooley_tukey_complex_fft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, s);
+        cooley_tukey_complex_fft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, s);
+    }
+}
+
+void
+cooley_tukey_iffts(unsigned int* a1, unsigned int* a2, int len)
+{
+    assert(isPow2(len));
+    
+    cudaStream_t s1, s2;
+    cudaError_t err;
+    
+    err = cudaStreamCreate(&s1);
+    assert(err == cudaSuccess);
+    cudaStreamCreate(&s2);
+    assert(err == cudaSuccess);
+    
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, log2(len));
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, log2(len));
+
+    
+    for (int s = 1; s <= log2(len); s++)
+    {
+        cooley_tukey_complex_ifft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, s, len);
+        cooley_tukey_complex_ifft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, s, len);
+    }
+}
+
+
+void
 crt_square(CudaBigInt& a, CudaBigInt& c)
 {
     unsigned int* cuda_a1;
@@ -584,12 +633,14 @@ crt_square(CudaBigInt& a, CudaBigInt& c)
         split<<<(a.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a.val, cuda_a1);
         split<<<(a.word_len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a.val, cuda_a2);
         
-        cooley_tukey_fft1(cuda_a1, a.word_len*4);
-        cooley_tukey_fft2(cuda_a2, a.word_len*4);
+        //cooley_tukey_fft1(cuda_a1, a.word_len*4);
+        //cooley_tukey_fft2(cuda_a2, a.word_len*4);
+        cooley_tukey_ffts(cuda_a1, cuda_a2, a.word_len*4);
         pointwise_square1<<<(a.word_len*4/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_a1);
         pointwise_square2<<<(a.word_len*4/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(cuda_a2);
-        cooley_tukey_ifft1(cuda_a1, a.word_len*4);
-        cooley_tukey_ifft2(cuda_a2, a.word_len*4);
+        //cooley_tukey_ifft1(cuda_a1, a.word_len*4);
+        //cooley_tukey_ifft2(cuda_a2, a.word_len*4);
+        cooley_tukey_iffts(cuda_a1, cuda_a2, a.word_len*4);
         
         combine(cuda_a1, cuda_a2, c);
         

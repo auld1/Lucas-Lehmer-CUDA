@@ -112,10 +112,8 @@ test(unsigned int size)
     
     if (0 != mpz_cmp(c_gmp, ct_gmp))
     {
-        gmp_printf("%Zx\n\n\n", c_gmp);
-        gmp_printf("%Zx\n\n\n", ct_gmp);
-        mpz_sub(a_gmp, c_gmp, ct_gmp);
-        gmp_printf("%Zx\n\n\n", a_gmp);
+        //gmp_printf("%Zx\n\n\n", c_gmp);
+        //gmp_printf("%Zx\n\n\n", ct_gmp);
         assert(0);
     }
 
@@ -134,21 +132,20 @@ isMersPrime(unsigned int p)
     CudaBigInt m(p);
     CudaBigInt c(a.word_len * 32 * 2);
     
-    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
     
     mers(p, m);
     
     addu(a, 4, a);
     
-    for (int i = 1; i <= p-2; i++)
+    for (int i = 1; i <= 10; i++) //p-2; i++)
     {
         //printf("Iteration %d of %d\n", i, p-2);
         
         //multiply(a, a, c);
         //fft_square(a, c);
         //ntt_square(a, c);
-        square(a,c);
-        //crt_square(a,c);
+        //square(a,c);
+        crt_square(a,c);
         
         if (!greater_or_equal(c, 2))
         {
@@ -167,14 +164,18 @@ isMersPrime(unsigned int p)
 int
 main(void)
 {
-    //for (int i = 1; i < 51; i++)
-    //{
-   //     cudaError_t err;
-     //   err = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
-       // assert(err == cudaSuccess);
+/*
+    for (int i = 1; i < 51; i++)
+    {*/
+        cudaError_t err;
+        err = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+        assert(err == cudaSuccess);
         
-        assert(isMersPrime(mers_prime_exps[32]));
-    //}
+        //assert(
+        isMersPrime(mers_prime_exps[40]);
+        //);
+    /*}
+/*
 /*
     if (isMersPrime(859433))
     {
@@ -182,11 +183,14 @@ main(void)
     } else {
         printf("Problem!\n");
     }
-
-    for (int i = 1; i < 26; i++)
+*/
+/*
+    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+    for (int i = 0; i < 10; i++)
     {
-        test(1<<i);
-        printf("Passed %d\n", i);
-    }*/
+        test(1024*1024);
+        printf("Passed %d\n", 1024*1024);
+    }
+*/
 }
 
