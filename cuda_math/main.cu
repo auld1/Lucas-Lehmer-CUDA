@@ -137,9 +137,9 @@ isMersPrime(unsigned int p)
     
     addu(a, 4, a);
     
-    for (int i = 1; i <= 10; i++) //p-2; i++)
+    for (int i = 1; i <= p-2; i++)
     {
-        //printf("Iteration %d of %d\n", i, p-2);
+        printf("Iteration %d of %d\n", i, p-2);
         
         //multiply(a, a, c);
         //fft_square(a, c);
@@ -164,18 +164,21 @@ isMersPrime(unsigned int p)
 int
 main(void)
 {
-/*
-    for (int i = 1; i < 51; i++)
-    {*/
-        cudaError_t err;
-        err = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
-        assert(err == cudaSuccess);
-        
-        //assert(
-        isMersPrime(mers_prime_exps[40]);
-        //);
-    /*}
-/*
+
+//    for (int i = 1; i < 51; i++)
+//    {
+//        cudaError_t err;
+//        err = cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
+//        //err = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+//        if (err != cudaSuccess)
+//        {
+//            printf("%s\n", cudaGetErrorString(err));
+//        }
+//        assert(err == cudaSuccess);
+//        
+          assert(isMersPrime(mers_prime_exps[35]));
+//    }
+
 /*
     if (isMersPrime(859433))
     {
@@ -188,8 +191,8 @@ main(void)
     cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
     for (int i = 0; i < 10; i++)
     {
-        test(1024*1024);
-        printf("Passed %d\n", 1024*1024);
+        test(1024*1024*(1<<i));
+        printf("Passed %d\n", 1024*1024*(1<<i));
     }
 */
 }

@@ -5,7 +5,7 @@
 #include "memory.h"
 #include "multiply.h"
 
-#define FFT_BLOCK_SIZE (128)
+#define FFT_BLOCK_SIZE (256)
 
 // This prime is of the form k*2^n+1 = 15*(2^27)+1
 #define NTT_PRIME1 ((unsigned int) 0x78000001) // 2013265921
@@ -160,6 +160,7 @@ unsigned int primitive_roots2[] = {
     1
 };
 
+
 __device__
 unsigned int inverse_roots2[] = {
     1,
@@ -233,6 +234,14 @@ unsigned int inverse_mod2[] = {
 };
 
 
+// The following are twiddle factors that will be precalculated
+unsigned int *twiddle_factors1[26];
+unsigned int *twiddle_factors2[26];
+unsigned int *twiddle_factors_inv1[26];
+unsigned int *twiddle_factors_inv2[26];
+int highest_twiddle_calculated = -1;
+
+
 #define NTT_PRIMES (((unsigned long long) NTT_PRIME1) * NTT_PRIME2)
 #define NTT_T1 ((unsigned long long) 10)
 #define NTT_T2 ((unsigned long long) 1811939320)
@@ -295,17 +304,30 @@ modpow2(unsigned int b, unsigned int e)
     return result;
 }
 
+// Procompute twiddle factors
+__global__ void
+compute_twiddles(int s, unsigned int* __restrict__ t1,
+                 unsigned int* __restrict__ it1, unsigned int* __restrict__ t2,
+                 unsigned int* __restrict__ it2)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    
+    t1[idx] = modpow1(primitive_roots1[s], idx);
+    it1[idx] = modpow1(inverse_roots1[s], idx);
+    t2[idx] = modpow2(primitive_roots2[s], idx);
+    it2[idx] = modpow2(inverse_roots2[s], idx);
+}
+
 __global__ void
 cooley_tukey_complex_fft1(unsigned int* __restrict__ A,
-                         int s)
+                         int s, unsigned int* tf)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int m = (1 << s);
     int k = idx / (m/2);
     k *= m;
     int j = idx % (m/2);
-    unsigned int wn1 = primitive_roots1[s];
-    unsigned int w1 = modpow1(wn1, (unsigned int)j);
+    unsigned int w1 = tf[j];
     unsigned int t, u;
     
     u = A[k + j];
@@ -317,15 +339,14 @@ cooley_tukey_complex_fft1(unsigned int* __restrict__ A,
 
 __global__ void
 cooley_tukey_complex_fft2(unsigned int* __restrict__ A,
-                         int s)
+                         int s, unsigned int* tf)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int m = (1 << s);
     int k = idx / (m/2);
     k *= m;
     int j = idx % (m/2);
-    unsigned int wn2 = primitive_roots2[s];
-    unsigned int w2 = modpow2(wn2, (unsigned int)j);
+    unsigned int w2 = tf[j];
     unsigned int t, u;
     
     t = modmul2(w2, A[k + j + m/2]);
@@ -337,7 +358,7 @@ cooley_tukey_complex_fft2(unsigned int* __restrict__ A,
 
 __global__ void
 cooley_tukey_complex_ifft1(unsigned int* __restrict__ A,
-                           int s,
+                           int s, unsigned int* tf,
                            int N)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -345,8 +366,7 @@ cooley_tukey_complex_ifft1(unsigned int* __restrict__ A,
     int k = idx / (m/2);
     k *= m;
     int j = idx % (m/2);
-    unsigned int wn1 = inverse_roots1[s];
-    unsigned int w1 = modpow1(wn1, (unsigned int)j);
+    unsigned int w1 = tf[j];
     unsigned int t, u;
     
     t = modmul1(w1, A[k + j + m/2]);
@@ -364,7 +384,7 @@ cooley_tukey_complex_ifft1(unsigned int* __restrict__ A,
 
 __global__ void
 cooley_tukey_complex_ifft2(unsigned int* __restrict__ A,
-                           int s,
+                           int s, unsigned int* tf,
                            int N)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -372,8 +392,7 @@ cooley_tukey_complex_ifft2(unsigned int* __restrict__ A,
     int k = idx / (m/2);
     k *= m;
     int j = idx % (m/2);
-    unsigned int wn2 = inverse_roots2[s];
-    unsigned int w2 = modpow2(wn2, (unsigned int)j);
+    unsigned int w2 = tf[j];
     unsigned int t, u;
     
     t = modmul2(w2, A[k + j + m/2]);
@@ -509,7 +528,7 @@ pointwise_square2(unsigned int* __restrict__ A)
     A[idx] = modmul2(A[idx], A[idx]);
 }
 
-
+/*
 void
 cooley_tukey_fft1(unsigned int* a, int len)
 {
@@ -565,7 +584,7 @@ cooley_tukey_ifft2(unsigned int* a, int len)
     {
         cooley_tukey_complex_ifft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a, s, len);
     }
-}
+}*/
 
 
 void
@@ -573,22 +592,31 @@ cooley_tukey_ffts(unsigned int* a1, unsigned int* a2, int len)
 {
     assert(isPow2(len));
     
-    cudaStream_t s1, s2;
     cudaError_t err;
     
-    err = cudaStreamCreate(&s1);
-    assert(err == cudaSuccess);
-    cudaStreamCreate(&s2);
-    assert(err == cudaSuccess);
-    
-    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, log2(len));
-    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, log2(len));
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, log2(len));
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, log2(len));
 
     
     for (int s = 1; s <= log2(len); s++)
     {
-        cooley_tukey_complex_fft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, s);
-        cooley_tukey_complex_fft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, s);
+        if (highest_twiddle_calculated < s)
+        {
+            cuda_malloc_clear((void**)&twiddle_factors1[s], sizeof(unsigned int) * (1<<s)/2);
+            cuda_malloc_clear((void**)&twiddle_factors_inv1[s], sizeof(unsigned int) * (1<<s)/2);
+            cuda_malloc_clear((void**)&twiddle_factors2[s], sizeof(unsigned int) * (1<<s)/2);
+            cuda_malloc_clear((void**)&twiddle_factors_inv2[s], sizeof(unsigned int) * (1<<s)/2);
+            
+            if ((1<<s)/2 < FFT_BLOCK_SIZE)
+            {
+                compute_twiddles<<<1, (1<<s)/2>>>(s, twiddle_factors1[s], twiddle_factors_inv1[s], twiddle_factors2[s], twiddle_factors_inv2[s]);
+            } else {
+                compute_twiddles<<<((1<<s)/2)/FFT_BLOCK_SIZE, FFT_BLOCK_SIZE>>>(s, twiddle_factors1[s], twiddle_factors_inv1[s], twiddle_factors2[s], twiddle_factors_inv2[s]);
+            }
+            highest_twiddle_calculated = s;
+        }
+        cooley_tukey_complex_fft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, s, twiddle_factors1[s]);
+        cooley_tukey_complex_fft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, s, twiddle_factors2[s]);
     }
 }
 
@@ -597,22 +625,31 @@ cooley_tukey_iffts(unsigned int* a1, unsigned int* a2, int len)
 {
     assert(isPow2(len));
     
-    cudaStream_t s1, s2;
     cudaError_t err;
     
-    err = cudaStreamCreate(&s1);
-    assert(err == cudaSuccess);
-    cudaStreamCreate(&s2);
-    assert(err == cudaSuccess);
-    
-    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, log2(len));
-    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, log2(len));
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0>>>(a1, log2(len));
+    crt_bitreverse<<<(len/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0>>>(a2, log2(len));
 
     
     for (int s = 1; s <= log2(len); s++)
     {
-        cooley_tukey_complex_ifft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s1>>>(a1, s, len);
-        cooley_tukey_complex_ifft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE, 0, s2>>>(a2, s, len);
+        if (highest_twiddle_calculated < s)
+        {
+            cuda_malloc_clear((void**)&twiddle_factors1[s], sizeof(unsigned int) * (1<<s)/2);
+            cuda_malloc_clear((void**)&twiddle_factors_inv1[s], sizeof(unsigned int) * (1<<s)/2);
+            cuda_malloc_clear((void**)&twiddle_factors2[s], sizeof(unsigned int) * (1<<s)/2);
+            cuda_malloc_clear((void**)&twiddle_factors_inv2[s], sizeof(unsigned int) * (1<<s)/2);
+            
+            if ((1<<s)/2 < FFT_BLOCK_SIZE)
+            {
+                compute_twiddles<<<1, (1<<s)/2>>>(s, twiddle_factors1[s], twiddle_factors_inv1[s], twiddle_factors2[s], twiddle_factors_inv2[s]);
+            } else {
+                compute_twiddles<<<((1<<s)/2)/FFT_BLOCK_SIZE, FFT_BLOCK_SIZE>>>(s, twiddle_factors1[s], twiddle_factors_inv1[s], twiddle_factors2[s], twiddle_factors_inv2[s]);
+            }
+            highest_twiddle_calculated = s;
+        }
+        cooley_tukey_complex_ifft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, s, twiddle_factors_inv1[s], len);
+        cooley_tukey_complex_ifft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, s, twiddle_factors_inv2[s], len);
     }
 }
 

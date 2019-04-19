@@ -1,4 +1,4 @@
-NVCC_CFLAGS = -O3
+NVCC_CFLAGS = -Xptxas -O3,-v
 
 lucas_lehmer : main.o add.o carry.o compare.o crt_ntt.o fft_multiply.o \
 				llntt.o memory.o mers.o mod.o multiply.o rand.o subtract.o untt.o
