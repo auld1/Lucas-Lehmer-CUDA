@@ -5,7 +5,7 @@
 #include "memory.h"
 #include "multiply.h"
 
-#define FFT_BLOCK_SIZE (256)
+#define FFT_BLOCK_SIZE (128)
 
 // This prime is of the form k*2^n+1 = 15*(2^27)+1
 #define NTT_PRIME1 ((unsigned int) 0x78000001) // 2013265921
@@ -260,6 +260,24 @@ crt_bitreverse(unsigned int* out,
     }
 }
 
+/*
+    Arithmetic costs for Nvidia GPU 3.0 compute:
+    
+    add (32 bit)      - ~1.2
+    multiply (32 bit) - ~6.0
+    bitwise (32 bit)  - ~1.2
+    shift (32 bit)    - ~6.0
+    bitrev (32 bit)   - ~6.0
+    
+    add (64 bit)      - ~3
+    multiply (64 bit) - ~24
+    bitwise (64 bit)  - ~3
+    shift (64 bit)    - ~12
+    
+
+*/
+
+// Approx. 30 clock cycles
 __device__ unsigned int
 modmul1(unsigned int a, unsigned int b)
 {
@@ -318,22 +336,121 @@ compute_twiddles(int s, unsigned int* __restrict__ t1,
     it2[idx] = modpow2(inverse_roots2[s], idx);
 }
 
+
+
 __global__ void
-cooley_tukey_complex_fft1(unsigned int* __restrict__ A,
-                         int s, unsigned int* tf)
+cooley_tukey_complex_fft1_1(unsigned int* __restrict__ A, unsigned int* tf)
 {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int m = (1 << s);
-    int k = idx / (m/2);
-    k *= m;
-    int j = idx % (m/2);
+    int k = idx;
+    k <<= 1;
+    int j = 0;
     unsigned int w1 = tf[j];
     unsigned int t, u;
     
     u = A[k + j];
-    t = modmul1(w1, A[k + j + m/2]);
+    t = modmul1(w1, A[k + j + 1]);
     
     A[k + j] = (u + t) % NTT_PRIME1;
+    A[j + k + 1] = (u + NTT_PRIME1 - t) % NTT_PRIME1;
+}
+
+__global__ void
+cooley_tukey_complex_fft2_1(unsigned int* __restrict__ A, unsigned int* tf)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int k = idx;
+    k <<= 1;
+    int j = 0;// % (m/2);
+    unsigned int w2 = tf[j];
+    unsigned int t, u;
+    
+    t = modmul2(w2, A[k + j + 1]);
+    u = A[k + j];
+    
+    A[k + j] = (u + t) % NTT_PRIME2;
+    A[j + k + 1] = (u + NTT_PRIME2 - t) % NTT_PRIME2;
+}
+
+__global__ void
+cooley_tukey_complex_ifft1_1(unsigned int* __restrict__ A,
+                             unsigned int* tf)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int k = idx;
+    k <<= 1;
+    int j = 0;// % (m/2);
+    unsigned int w1 = tf[j];
+    unsigned int t, u;
+    
+    t = modmul1(w1, A[k + j + 1]);
+    u = A[k + j];
+    
+    A[k + j] = (u + t) % NTT_PRIME1;
+    A[j + k + 1] = (u + NTT_PRIME1 - t) % NTT_PRIME1;
+}
+
+__global__ void
+cooley_tukey_complex_ifft2_1(unsigned int* __restrict__ A,
+                             unsigned int* tf)
+{
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int k = idx;
+    k <<= 1;
+    int j = 0;// % (m/2);
+    unsigned int w2 = tf[j];
+    unsigned int t, u;
+    
+    t = modmul2(w2, A[k + j + 1]);
+    u = A[k + j];
+    
+    A[k + j] = (u + t) % NTT_PRIME2;
+    A[j + k + 1] = (u + NTT_PRIME2 - t) % NTT_PRIME2;
+}
+
+
+
+
+/*
+    Arithmetic costs for Nvidia GPU 3.0 compute:
+    
+    add (32 bit)      - ~1.2
+    multiply (32 bit) - ~6.0
+    bitwise (32 bit)  - ~1.2
+    shift (32 bit)    - ~6.0
+    bitrev (32 bit)   - ~6.0
+    
+    add (64 bit)      - ~3
+    multiply (64 bit) - ~24
+    bitwise (64 bit)  - ~3
+    shift (64 bit)    - ~12
+    
+
+*/
+__global__ void
+cooley_tukey_complex_fft1(unsigned int* __restrict__ A,
+                         int s, unsigned int* tf)
+{
+    // ~7 cycles
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    // ~6 cycles
+    int m = (1 << s);
+    // ~12 cycles
+    int k = idx / (m/2);
+    // ~6 cycles
+    k <<= s;
+    // ~12 cycles
+    int j = idx & ((1 << (s-1)) - 1);// % (m/2);
+    unsigned int w1 = tf[j];
+    unsigned int t, u;
+    
+    u = A[k + j];
+    // ~30 cycles
+    t = modmul1(w1, A[k + j + m/2]);
+    
+    // ~7 cycles
+    A[k + j] = (u + t) % NTT_PRIME1;
+    // ~9 cycles
     A[j + k + m/2] = (u + NTT_PRIME1 - t) % NTT_PRIME1;
 }
 
@@ -344,8 +461,8 @@ cooley_tukey_complex_fft2(unsigned int* __restrict__ A,
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int m = (1 << s);
     int k = idx / (m/2);
-    k *= m;
-    int j = idx % (m/2);
+    k <<= s;
+    int j = idx & ((1 << (s-1)) - 1);// % (m/2);
     unsigned int w2 = tf[j];
     unsigned int t, u;
     
@@ -364,8 +481,8 @@ cooley_tukey_complex_ifft1(unsigned int* __restrict__ A,
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int m = (1 << s);
     int k = idx / (m/2);
-    k *= m;
-    int j = idx % (m/2);
+    k <<= s;
+    int j = idx & ((1 << (s-1)) - 1);// % (m/2);
     unsigned int w1 = tf[j];
     unsigned int t, u;
     
@@ -390,8 +507,8 @@ cooley_tukey_complex_ifft2(unsigned int* __restrict__ A,
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int m = (1 << s);
     int k = idx / (m/2);
-    k *= m;
-    int j = idx % (m/2);
+    k <<= s;
+    int j = idx & ((1 << (s-1)) - 1);// % (m/2);
     unsigned int w2 = tf[j];
     unsigned int t, u;
     
@@ -615,8 +732,14 @@ cooley_tukey_ffts(unsigned int* a1, unsigned int* a2, int len)
             }
             highest_twiddle_calculated = s;
         }
-        cooley_tukey_complex_fft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, s, twiddle_factors1[s]);
-        cooley_tukey_complex_fft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, s, twiddle_factors2[s]);
+        if (s == 1)
+        {
+            cooley_tukey_complex_fft1_1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, twiddle_factors1[s]);
+            cooley_tukey_complex_fft2_1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, twiddle_factors2[s]);
+        } else {
+            cooley_tukey_complex_fft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, s, twiddle_factors1[s]);
+            cooley_tukey_complex_fft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, s, twiddle_factors2[s]);
+        }
     }
 }
 
@@ -648,8 +771,14 @@ cooley_tukey_iffts(unsigned int* a1, unsigned int* a2, int len)
             }
             highest_twiddle_calculated = s;
         }
-        cooley_tukey_complex_ifft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, s, twiddle_factors_inv1[s], len);
-        cooley_tukey_complex_ifft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, s, twiddle_factors_inv2[s], len);
+        if (s == 1)
+        {
+            cooley_tukey_complex_ifft1_1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1,twiddle_factors_inv1[s]);
+            cooley_tukey_complex_ifft2_1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2,twiddle_factors_inv2[s]);
+        } else {
+            cooley_tukey_complex_ifft1<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a1, s, twiddle_factors_inv1[s], len);
+            cooley_tukey_complex_ifft2<<<((len/2)/FFT_BLOCK_SIZE), FFT_BLOCK_SIZE>>>(a2, s, twiddle_factors_inv2[s], len);
+        }
     }
 }
 

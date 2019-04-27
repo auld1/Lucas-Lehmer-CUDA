@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <gmp.h>
 
+#include <cuda_profiler_api.h>
 
 #include "compare.h"
 #include "add.h"
@@ -131,7 +133,11 @@ isMersPrime(unsigned int p)
     CudaBigInt a(p);
     CudaBigInt m(p);
     CudaBigInt c(a.word_len * 32 * 2);
+
+    int start = 0;
+    int end = 0;
     
+    start = time(NULL);
     
     mers(p, m);
     
@@ -155,7 +161,15 @@ isMersPrime(unsigned int p)
         subu(c, 2, c);
         
         mod(c, p, m, a);
+        
+        if(i == 10000)
+        {
+            assert(cudaProfilerStop() == cudaSuccess);
+            end = time(NULL);
+        }
     }
+    
+    printf("Time elapsed for profiling = %d\n", end-start);
     
     return equalu(a, 0);
 }
@@ -169,14 +183,15 @@ main(void)
 //    {
 //        cudaError_t err;
 //        err = cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
-//        //err = cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+          assert(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1) == cudaSuccess);
 //        if (err != cudaSuccess)
 //        {
 //            printf("%s\n", cudaGetErrorString(err));
 //        }
 //        assert(err == cudaSuccess);
 //        
-          assert(isMersPrime(mers_prime_exps[35]));
+          assert(cudaProfilerStart() == cudaSuccess);
+          assert(isMersPrime(mers_prime_exps[50]));
 //    }
 
 /*
